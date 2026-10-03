@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cassino do Sifu - Jogo da Velha</title>
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:Georgia,serif;background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 100%);color:#e0e0e0;min-height:100vh;padding:20px}
+.container{max-width:700px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px}
+h1{color:#d4af37;text-shadow:2px 2px 4px rgba(0,0,0,.5)}
+h3{color:#d4af37;margin:14px 0 8px}
+.btn-voltar{background:#4ecdc4;color:#fff;border:none;padding:10px 18px;border-radius:5px;font-weight:bold;text-decoration:none}
+.info{display:flex;gap:12px;justify-content:center;margin-bottom:16px}
+.info-item{background:rgba(212,175,55,.2);border:2px solid #d4af37;padding:10px 22px;border-radius:8px;text-align:center}
+.info-label{color:#d4af37;font-weight:bold;font-size:.85rem}
+.info-value{color:#0f0;font-size:1.6rem;font-weight:bold}
+.painel{background:rgba(0,0,0,.3);border:2px solid #d4af37;border-radius:10px;padding:18px;text-align:center}
+.regras{color:#b8a86b;font-size:.9rem;margin-bottom:6px}
+.linha{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button{font-family:inherit}
+.opt{background:rgba(212,175,55,.15);color:#d4af37;border:2px solid #d4af37;border-radius:8px;padding:10px 16px;font-weight:bold;font-size:1rem;cursor:pointer}
+.opt.sel{background:#d4af37;color:#1a1a2e}
+input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;border:2px solid #d4af37;background:#111;color:#fff;font-size:1rem;text-align:center}
+.pay{color:#b8a86b;font-size:.9rem;margin-top:8px;min-height:20px}
+.grande{margin-top:14px;background:#d4af37;color:#1a1a2e;border:none;border-radius:8px;padding:14px 28px;font-size:1.1rem;font-weight:bold;cursor:pointer}
+.mesa{background:linear-gradient(135deg,#0d5f2d 0%,#1a3a2e 100%);border:6px solid #d4af37;border-radius:15px;padding:14px}
+.ops{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.op{flex:1;min-width:120px;max-width:200px;background:rgba(0,0,0,.35);border:2px solid #555;border-radius:8px;padding:8px;text-align:center}
+.op.vez{border-color:#4ecca3;box-shadow:0 0 12px rgba(78,204,163,.6)}
+.op.fora{opacity:.5}
+.nome{color:#d4af37;font-weight:bold;font-size:.9rem;margin-bottom:4px}
+.qtd{color:#ccc;font-size:.8rem;margin-top:3px}
+.log{background:rgba(0,0,0,.4);border-radius:8px;padding:8px 10px;min-height:76px;color:#d4af37;font-size:.9rem;margin-bottom:12px}
+.log div:last-child{font-weight:bold;color:#fff}
+.area{background:rgba(0,0,0,.3);border:2px solid #d4af37;border-radius:10px;padding:10px;margin-bottom:12px;text-align:center}
+.carta{display:inline-flex;align-items:center;justify-content:center;width:54px;height:76px;background:#fff;color:#111;border:2px solid #333;border-radius:6px;font-weight:bold;margin:3px;box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.carta.v{color:#d32f2f}
+.verso{background-color:#0f3460!important;background-image:repeating-linear-gradient(45deg,rgba(212,175,55,.55) 0 2px,transparent 2px 9px),repeating-linear-gradient(-45deg,rgba(212,175,55,.55) 0 2px,transparent 2px 9px)!important;border:3px solid #fff!important;box-shadow:inset 0 0 0 3px #0f3460,inset 0 0 0 5px #d4af37,0 4px 8px rgba(0,0,0,.5)!important;color:transparent!important;font-size:0!important}
+.verso.mini{display:inline-block;width:20px;height:30px;border-width:2px!important;border-radius:4px;margin:0 1px;vertical-align:middle;box-shadow:inset 0 0 0 2px #0f3460,inset 0 0 0 3px #d4af37!important}
+.pick{width:46px;height:64px;border-radius:6px;cursor:pointer;margin:3px;padding:0;transition:transform .15s}
+.pick:hover{transform:translateY(-6px)}
+.anim{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:800;pointer-events:none;text-align:center;display:none}
+.anim .carta{width:92px;height:128px;font-size:1.7rem;margin:0 auto;border-color:#ffd700;box-shadow:0 0 28px rgba(255,215,0,.9);animation:pop 1.3s ease forwards}
+.anim .leg{margin-top:10px;color:#ffd700;font-weight:bold;text-shadow:0 2px 6px #000;animation:pop 1.3s ease forwards}
+@keyframes pop{0%{transform:scale(.3) rotate(-15deg);opacity:0}20%{transform:scale(1.15) rotate(0);opacity:1}35%{transform:scale(1)}80%{opacity:1}100%{transform:scale(1) translateY(50px);opacity:0}}
+.carta.nova{border-color:#ffd700;box-shadow:0 0 14px #ffd700;animation:brilha .8s ease 3}
+@keyframes brilha{50%{transform:translateY(-8px)}}
+#fimPainel{text-align:center;margin-top:12px}
+#fimTxt{font-size:1.2rem;font-weight:bold;color:#d4af37;margin-bottom:8px}
+        .musica-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            background: rgba(15, 52, 96, 0.9);
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 900;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .musica-btn.tocando { animation: glow-btn 1.5s ease-in-out infinite; }
+        @keyframes glow-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 1); }
+        }
+
+
+.tab{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:340px;margin:12px auto}
+.cel{aspect-ratio:1;background:rgba(0,0,0,.45);border:3px solid #d4af37;border-radius:12px;font-size:3rem;font-weight:bold;cursor:pointer;color:#fff;font-family:inherit;padding:0}
+.cel:disabled{cursor:default}
+.cel.X{color:#4ecca3}.cel.O{color:#ff6b6b}
+.cel.novo{animation:popc .22s ease-out}
+.cel.vence{background:rgba(212,175,55,.35);box-shadow:0 0 18px #ffd700}
+@keyframes popc{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.status{text-align:center;color:#d4af37;font-weight:bold;min-height:28px;font-size:1.1rem}
+</style>
+</head>
+<body>
+<div class="container">
+ <div class="header"><h1>⭕ JOGO DA VELHA</h1><a class="btn-voltar" href="index.html" target="_self">← Voltar</a></div>
+ <div class="info">
+  <div class="info-item"><div class="info-label">💰 SALDO</div><div class="info-value" id="saldo">1000</div></div>
+  <div class="info-item"><div class="info-label">🎯 APOSTA</div><div class="info-value" id="apostaTxt">0</div></div>
+ </div>
+ <div class="painel" id="setup">
+  <div class="regras">Faça três em linha antes do adversário. Você é o ❌ e ele é o ⭕. Quem começa é sorteado a cada jogo.</div>
+  <h3>Dificuldade</h3>
+  <div class="linha" id="nvBtns">
+   <button class="opt" data-n="1" onclick="setNivel(1)">Fácil</button>
+   <button class="opt sel" data-n="2" onclick="setNivel(2)">Médio</button>
+   <button class="opt" data-n="3" onclick="setNivel(3)">Impossível</button>
+  </div>
+  <h3>Sua aposta</h3>
+  <div class="linha">
+   <button class="opt" onclick="chip(10)">10</button><button class="opt" onclick="chip(50)">50</button>
+   <button class="opt" onclick="chip(100)">100</button><button class="opt" onclick="chip(500)">500</button>
+   <button class="opt" onclick="chip(J.saldo)">Tudo</button>
+  </div>
+  <input type="number" id="apCustom" placeholder="Ou digite o valor" min="1" oninput="info()">
+  <div class="pay" id="payInfo"></div>
+  <button class="grande" onclick="comecar()">⭕ Começar</button>
+ </div>
+ <div id="jogo" style="display:none">
+  <div class="status" id="status"></div>
+  <div class="tab" id="tab"></div>
+  <div id="fimPainel" class="painel" style="display:none"><div id="fimTxt"></div><button class="grande" onclick="voltarSetup()">🔄 Jogar de novo</button></div>
+ </div>
+</div>
+<script>
+const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const MULT={1:0.5,2:1,3:3};
+const J={saldo:1000,aposta:0,nivel:2};
+let B=[],vez='X',fim=true,ult=-1,adv='Shifu',lin=[],timer=0;
+const $=id=>document.getElementById(id);
+function lerSaldo(){try{const v=parseInt(localStorage.getItem('casinoSaldo'));if(!isNaN(v))J.saldo=v;}catch(e){}}
+function salvar(){try{localStorage.setItem('casinoSaldo',String(J.saldo));}catch(e){}}
+function setNivel(n){J.nivel=n;document.querySelectorAll('#nvBtns button').forEach(b=>b.classList.toggle('sel',+b.dataset.n===n));info();}
+function chip(v){$('apCustom').value=v;info();}
+function info(){
+  const v=parseInt($('apCustom').value)||0;
+  $('payInfo').textContent=v>0?'Vitória: +'+Math.round(v*MULT[J.nivel])+' fichas • Empate: aposta devolvida • Derrota: −'+v:'Escolha o valor da aposta';
+  $('saldo').textContent=J.saldo;
+}
+function venc(b){for(const l of L){const[a,c,d]=l;if(b[a]&&b[a]===b[c]&&b[a]===b[d])return{w:b[a],l};}return b.every(x=>x)?{w:'E',l:[]}:null;}
+function minimax(b,j,p){
+  const r=venc(b);if(r)return r.w==='O'?10-p:r.w==='X'?p-10:0;
+  let best=j==='O'?-99:99;
+  for(let i=0;i<9;i++)if(!b[i]){b[i]=j;const s=minimax(b,j==='O'?'X':'O',p+1);b[i]='';best=j==='O'?Math.max(best,s):Math.min(best,s);}
+  return best;
+}
+function escolhe(){
+  const livres=[0,1,2,3,4,5,6,7,8].filter(i=>!B[i]);
+  const rnd=a=>a[Math.floor(Math.random()*a.length)];
+  if(J.nivel===1)return rnd(livres);
+  const acha=m=>{for(const i of livres){B[i]=m;const r=venc(B);B[i]='';if(r&&r.w===m)return i;}return -1;};
+  if(J.nivel===2){
+    let i=acha('O');if(i>=0)return i;i=acha('X');if(i>=0)return i;
+    if(!B[4])return 4;
+    const c=[0,2,6,8].filter(k=>!B[k]);return c.length?rnd(c):rnd(livres);
+  }
+  let melhor=-99,op=[];
+  for(const i of livres){B[i]='O';const s=minimax(B,'X',1);B[i]='';if(s>melhor){melhor=s;op=[i];}else if(s===melhor)op.push(i);}
+  return rnd(op);
+}
+function comecar(){
+  const v=parseInt($('apCustom').value);
+  if(!v||v<1){alert('Digite uma aposta válida.');return;}
+  if(v>J.saldo){alert('Saldo insuficiente! Você tem '+J.saldo+' fichas.');return;}
+  J.aposta=v;J.saldo-=v;salvar();$('saldo').textContent=J.saldo;$('apostaTxt').textContent=v;
+  B=Array(9).fill('');ult=-1;lin=[];fim=false;
+  adv=['Shifu','Louxas','Dunha'][Math.floor(Math.random()*3)];
+  vez=Math.random()<.5?'X':'O';
+  $('setup').style.display='none';$('jogo').style.display='block';$('fimPainel').style.display='none';
+  render();
+  if(vez==='O')timer=setTimeout(()=>jogar(escolhe(),'O'),700);
+}
+function clique(i){if(fim||vez!=='X'||B[i])return;jogar(i,'X');}
+function jogar(i,m){
+  if(fim)return;
+  B[i]=m;ult=i;
+  const r=venc(B);
+  if(r){terminar(r);return;}
+  vez=m==='X'?'O':'X';render();
+  if(vez==='O')timer=setTimeout(()=>jogar(escolhe(),'O'),600);
+}
+function terminar(r){
+  fim=true;lin=r.l;clearTimeout(timer);
+  let t;
+  if(r.w==='X'){const g=Math.round(J.aposta*MULT[J.nivel]);J.saldo+=J.aposta+g;t='🎉 Você venceu '+adv+'! +'+g+' fichas';}
+  else if(r.w==='O')t='😞 '+adv+' venceu. −'+J.aposta+' fichas';
+  else{J.saldo+=J.aposta;t='Deu velha! Aposta devolvida.';}
+  salvar();render();$('saldo').textContent=J.saldo;$('fimTxt').textContent=t;$('fimPainel').style.display='block';
+}
+function voltarSetup(){$('jogo').style.display='none';$('setup').style.display='block';$('apostaTxt').textContent=0;info();}
+function render(){
+  $('status').textContent=fim?'':(vez==='X'?'Sua vez (❌)':adv+' está pensando (⭕)...');
+  $('tab').innerHTML=B.map((m,i)=>'<button class="cel '+m+(i===ult?' novo':'')+(lin.includes(i)?' vence':'')+'" onclick="clique('+i+')"'+(fim||m?' disabled':'')+'>'+(m==='X'?'❌':m==='O'?'⭕':'')+'</button>').join('');
+}
+lerSaldo();info();
+</script>
+    <audio id="musica" loop preload="auto" src="musica.m4a"></audio>
+    <button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
+
+    <script>
+        (function () {
+            const musica = document.getElementById('musica');
+            const btn = document.getElementById('musicaBtn');
+            const CH_MUDO = 'casinoMusicaMutada', CH_POS = 'casinoMusicaPos';
+            const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+            const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+            let mutada = ler(CH_MUDO) === '1';
+
+            function atualizar() {
+                const tocando = !musica.paused;
+                btn.textContent = tocando ? '🔊' : '🔇';
+                btn.classList.toggle('tocando', tocando);
+            }
+            function tocar() { return musica.play().then(atualizar).catch(atualizar); }
+
+            window.alternarMusica = function () {
+                if (musica.paused) { mutada = false; gravar(CH_MUDO, '0'); tocar(); }
+                else { mutada = true; gravar(CH_MUDO, '1'); musica.pause(); atualizar(); }
+            };
+
+            musica.volume = 0.6;
+            const pos = parseFloat(ler(CH_POS));
+            if (pos > 0) musica.addEventListener('loadedmetadata', () => { try { musica.currentTime = pos; } catch (e) {} }, { once: true });
+            let ult = 0;
+            musica.addEventListener('timeupdate', () => { const t = Date.now(); if (t - ult > 1000) { ult = t; gravar(CH_POS, musica.currentTime); } });
+            window.addEventListener('pagehide', () => gravar(CH_POS, musica.currentTime));
+
+            if (!mutada) {
+                musica.play().then(atualizar).catch(() => {
+                    const iniciar = () => {
+                        if (!mutada && musica.paused) tocar();
+                        document.removeEventListener('pointerdown', iniciar);
+                    };
+                    document.addEventListener('pointerdown', iniciar);
+                });
+            }
+            atualizar();
+        })();
+    </script>
+
+
+</body>
+</html>

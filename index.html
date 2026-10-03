@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cassino do Sifu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 700px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            color: #d4af37;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.8), 3px 3px 6px rgba(0, 0, 0, 0.7);
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 30px rgba(212, 175, 55, 0.8), 3px 3px 6px rgba(0, 0, 0, 0.7);
+            }
+            50% {
+                text-shadow: 0 0 50px rgba(212, 175, 55, 1), 3px 3px 6px rgba(0, 0, 0, 0.7);
+            }
+        }
+        
+        .tagline {
+            font-size: 1.3rem;
+            color: #b8a86b;
+            font-style: italic;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .saldo-display {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+            border: 4px solid #d4af37;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 45px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .saldo-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .saldo-label {
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .saldo-valor {
+            font-size: 2.8rem;
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+            margin-top: 12px;
+        }
+        
+        .jogos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+        
+        .jogo-card {
+            background: linear-gradient(135deg, #0d5f2d 0%, #1a3a2e 100%);
+            border: 5px solid #d4af37;
+            border-radius: 20px;
+            padding: 40px 25px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25), inset 0 0 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            color: inherit;
+        }
+        
+        .jogo-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .jogo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.3);
+            border-color: #ffd700;
+        }
+        
+        .jogo-icon {
+            font-size: 3.5rem;
+            margin-bottom: 18px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        .jogo-card:hover .jogo-icon {
+            animation: bounceHover 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes bounceHover {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+        
+        .jogo-nome {
+            color: #d4af37;
+            font-size: 1.7rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .jogo-desc {
+            color: #ccc;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .botoes {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            font-size: 1rem;
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #e53e3e 100%);
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.5);
+        }
+        
+        .rodape {
+            color: #b8a86b;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 700px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                letter-spacing: 2px;
+            }
+            
+            .saldo-valor {
+                font-size: 2rem;
+            }
+            
+            .jogos {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .jogo-icon {
+                font-size: 2.8rem;
+            }
+            
+            .jogo-nome {
+                font-size: 1.4rem;
+            }
+            
+            .jogo-card {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+        }
+
+        .musica-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            background: rgba(15, 52, 96, 0.9);
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 900;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .musica-btn.tocando { animation: glow-btn 1.5s ease-in-out infinite; }
+        @keyframes glow-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 CASSINO DO SIFU 🎴</h1>
+            <p class="tagline">Onde a sorte encontra a disciplina</p>
+        </div>
+        
+        <div class="saldo-display">
+            <div class="saldo-label">💰 SEU SALDO</div>
+            <div class="saldo-valor" id="saldoTotal">1000</div>
+            <div class="saldo-label">fichas</div>
+        </div>
+        
+        <div class="jogos">
+            <a href="blackjack.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">♠️</div>
+                <div class="jogo-nome">Blackjack</div>
+                <div class="jogo-desc">Jogue contra o dealer. Chegue aos 21 sem estourar!</div>
+            </a>
+            
+            <a href="jackpot.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">🎰</div>
+                <div class="jogo-nome">Jackpot</div>
+                <div class="jogo-desc">Caça-níquel. Uma chance minúscula de ganhar muito!</div>
+            </a>
+            
+            <a href="truco.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">🃏</div>
+                <div class="jogo-nome">Truco</div>
+                <div class="jogo-desc">O jogo de cartas mais clássico do Brasil! 1 vs CPU</div>
+            </a>
+            
+            <a href="mico.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">🐒</div>
+                <div class="jogo-nome">Mico 🐒</div>
+                <div class="jogo-desc">Forme pares e fuja do Mico! Quem ficar com a carta sem par perde.</div>
+            </a>
+            
+            <a href="buraco.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">🕳️</div>
+                <div class="jogo-nome">Buraco</div>
+                <div class="jogo-desc">Forme sequências, faça buracos e bata primeiro! 1 vs CPU</div>
+            </a>
+            
+            <a href="velha.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">⭕</div>
+                <div class="jogo-nome">Jogo da Velha</div>
+                <div class="jogo-desc">Três em linha! Você contra Shifu, Louxas ou Dunha.</div>
+            </a>
+            
+            <a href="ludo.html" class="jogo-card" target="_self">
+                <div class="jogo-icon">🎲</div>
+                <div class="jogo-nome">Ludo</div>
+                <div class="jogo-desc">Role o dado e leve suas peças ao centro! 2 ou 4 jogadores</div>
+            </a>
+        </div>
+        
+        <div class="botoes">
+            <button class="reset-btn" onclick="resetarJogo()">🔄 Recomeçar com 1000 fichas</button>
+        </div>
+        
+        <p class="rodape">Jogue com responsabilidade • Cassino do Sifu © 2026</p>
+    </div>
+
+    <script>
+        function carregarSaldo() {
+            let saldo = localStorage.getItem('casinoSaldo');
+            if (!saldo) {
+                saldo = 1000;
+                localStorage.setItem('casinoSaldo', saldo);
+            }
+            document.getElementById('saldoTotal').textContent = saldo;
+        }
+
+        function resetarJogo() {
+            if (confirm('Resetar saldo para 1000 fichas?')) {
+                localStorage.setItem('casinoSaldo', 1000);
+                location.reload();
+            }
+        }
+
+        carregarSaldo();
+    </script>
+    <audio id="musica" loop preload="auto" src="musica.m4a"></audio>
+    <button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
+
+    <script>
+        (function () {
+            const musica = document.getElementById('musica');
+            const btn = document.getElementById('musicaBtn');
+            const CH_MUDO = 'casinoMusicaMutada', CH_POS = 'casinoMusicaPos';
+            const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+            const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+            let mutada = ler(CH_MUDO) === '1';
+
+            function atualizar() {
+                const tocando = !musica.paused;
+                btn.textContent = tocando ? '🔊' : '🔇';
+                btn.classList.toggle('tocando', tocando);
+            }
+            function tocar() { return musica.play().then(atualizar).catch(atualizar); }
+
+            window.alternarMusica = function () {
+                if (musica.paused) { mutada = false; gravar(CH_MUDO, '0'); tocar(); }
+                else { mutada = true; gravar(CH_MUDO, '1'); musica.pause(); atualizar(); }
+            };
+
+            musica.volume = 0.6;
+            const pos = parseFloat(ler(CH_POS));
+            if (pos > 0) musica.addEventListener('loadedmetadata', () => { try { musica.currentTime = pos; } catch (e) {} }, { once: true });
+            let ult = 0;
+            musica.addEventListener('timeupdate', () => { const t = Date.now(); if (t - ult > 1000) { ult = t; gravar(CH_POS, musica.currentTime); } });
+            window.addEventListener('pagehide', () => gravar(CH_POS, musica.currentTime));
+
+            if (!mutada) {
+                musica.play().then(atualizar).catch(() => {
+                    const iniciar = () => {
+                        if (!mutada && musica.paused) tocar();
+                        document.removeEventListener('pointerdown', iniciar);
+                    };
+                    document.addEventListener('pointerdown', iniciar);
+                });
+            }
+            atualizar();
+        })();
+    </script>
+</body>
+</html>

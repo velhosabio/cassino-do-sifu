@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cassino do Sifu - Blackjack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        h1 {
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .btn-voltar {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-voltar:hover {
+            background: #3ba49b;
+            transform: scale(1.05);
+        }
+        
+        .info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .info-item {
+            background: rgba(212, 175, 55, 0.2);
+            border: 2px solid #d4af37;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            color: #00ff00;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .mesa {
+            background: linear-gradient(135deg, #0d5f2d 0%, #1a3a2e 100%);
+            border: 8px solid #d4af37;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .area {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 2px solid #d4af37;
+        }
+        
+        .area h2 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .cartas {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            min-height: 130px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .carta {
+            width: 80px;
+            height: 110px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            animation: aparecer 0.3s ease-out;
+        }
+        
+        .carta.vermelha {
+            color: #cc0000;
+        }
+        
+        .carta.preta {
+            color: #000;
+        }
+        
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .pontos {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .resultado {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #d4af37;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .resultado.show {
+            display: flex;
+        }
+        
+        .resultado-texto {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .resultado.vitoria .resultado-texto {
+            color: #00ff00;
+        }
+        
+        .resultado.derrota .resultado-texto {
+            color: #ff6b6b;
+        }
+        
+        .resultado.empate .resultado-texto {
+            color: #ffd700;
+        }
+        
+        .apostas {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .apostas h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+        
+        .bet-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .bet-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8c1e 100%);
+            color: #000;
+            box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+        }
+        
+        .bet-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(212, 175, 55, 0.5);
+        }
+        
+        .btn-play {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+        }
+        
+        .btn-play:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.5);
+        }
+        
+        .btn-action {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a39a 100%);
+            color: white;
+        }
+        
+        .btn-action:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(78, 205, 196, 0.5);
+        }
+        
+        .btn-novo {
+            background: linear-gradient(135deg, #95e1d3 0%, #6bcf7f 100%);
+            color: #000;
+        }
+        
+        .btn-novo:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(107, 207, 127, 0.5);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .controles {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .custom-aposta {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        #apostaCustom {
+            padding: 10px 15px;
+            border: 2px solid #d4af37;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-size: 1rem;
+            width: 200px;
+        }
+        
+        #apostaCustom:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        
+        .info-aposta {
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .info {
+                flex-direction: column;
+            }
+            
+            .carta {
+                width: 60px;
+                height: 85px;
+                font-size: 16px;
+            }
+            
+            button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+        .musica-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            background: rgba(15, 52, 96, 0.9);
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 900;
+            padding: 0;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .musica-btn.tocando { animation: glow-btn 1.5s ease-in-out infinite; }
+        @keyframes glow-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 1); }
+        }
+
+        /* Verso padrão das cartas (losangos dourados sobre azul) */
+        .verso {
+            background-color: #0f3460 !important;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(212,175,55,0.55) 0 2px, transparent 2px 9px),
+                repeating-linear-gradient(-45deg, rgba(212,175,55,0.55) 0 2px, transparent 2px 9px) !important;
+            border: 3px solid #fff !important;
+            box-shadow: inset 0 0 0 3px #0f3460, inset 0 0 0 5px #d4af37, 0 4px 8px rgba(0,0,0,0.5) !important;
+            color: transparent !important;
+            font-size: 0 !important;
+        }
+        .verso.mini { display: inline-block; width: 26px; height: 38px; min-width: 0; padding: 0; border-width: 2px !important; border-radius: 4px; margin: 0 2px; vertical-align: middle; box-shadow: inset 0 0 0 2px #0f3460, inset 0 0 0 3px #d4af37 !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 BLACKJACK</h1>
+            <a href="index.html" class="btn-voltar">← Voltar</a>
+        </div>
+        
+        <div class="info">
+            <div class="info-item">
+                <div class="info-label">SALDO</div>
+                <div class="info-value" id="saldo">1000</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">APOSTA</div>
+                <div class="info-value" id="aposta">0</div>
+            </div>
+        </div>
+        
+        <div class="resultado" id="resultado">
+            <div class="resultado-texto" id="resultadoTexto"></div>
+        </div>
+        
+        <div class="apostas" id="apostasDiv">
+            <h3>Escolha sua Aposta</h3>
+            <div class="bet-buttons">
+                <button class="bet-btn" onclick="fazerAposta(10)">10 fichas</button>
+                <button class="bet-btn" onclick="fazerAposta(25)">25 fichas</button>
+                <button class="bet-btn" onclick="fazerAposta(50)">50 fichas</button>
+                <button class="bet-btn" onclick="fazerAposta(100)">100 fichas</button>
+                <button class="bet-btn" onclick="fazerAposta(250)">250 fichas</button>
+                <button class="bet-btn" onclick="duplicarAposta()" id="btnDobrar">2x Anterior</button>
+                <button class="bet-btn" onclick="apostarTudo()">Tudo!</button>
+            </div>
+            <div class="custom-aposta">
+                <input type="number" id="apostaCustom" placeholder="Digite qualquer valor" min="1" max="999999">
+                <button class="bet-btn" onclick="fazerApostaCustom()">Apostar</button>
+            </div>
+            <div class="info-aposta">Seu saldo: <span id="saldoInfo">1000</span> fichas</div>
+        </div>
+        
+        <div class="mesa">
+            <div class="area">
+                <h2>🎰 DEALER</h2>
+                <div class="cartas" id="dealerCartas"></div>
+                <div class="pontos" id="dealerPontos">Pontos: -</div>
+            </div>
+            
+            <div class="area">
+                <h2>👤 VOCÊ</h2>
+                <div class="cartas" id="playerCartas"></div>
+                <div class="pontos" id="playerPontos">Pontos: -</div>
+            </div>
+        </div>
+        
+        <div class="controles">
+            <button class="btn-play" id="btnJogar" onclick="iniciarJogo()">APOSTAR</button>
+            <button class="btn-action" id="btnComprar" onclick="comprarCarta()" disabled>COMPRAR CARTA</button>
+            <button class="btn-action" id="btnParar" onclick="parar()" disabled>PARAR</button>
+            <button class="btn-novo" id="btnNovo" onclick="novaRodada()" disabled>NOVA RODADA</button>
+        </div>
+    </div>
+
+    <script>
+        const NAIPES = ['♠', '♥', '♦', '♣'];
+        const VALORES = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const PONTOS = {
+            'A': 11, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+            '10': 10, 'J': 10, 'Q': 10, 'K': 10
+        };
+
+        let jogo = {
+            saldo: 1000,
+            aposta: 0,
+            baralho: [],
+            maoDealer: [],
+            maoPlayer: [],
+            jogoAtivo: false,
+            playerParou: false
+        };
+
+        function criarBaralho() {
+            let b = [];
+            for (let n of NAIPES) {
+                for (let v of VALORES) {
+                    b.push({ valor: v, naipe: n });
+                }
+            }
+            return embaralhar(b);
+        }
+
+        function embaralhar(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function pegarCarta() {
+            if (jogo.baralho.length < 10) {
+                jogo.baralho = criarBaralho();
+            }
+            return jogo.baralho.pop();
+        }
+
+        function calcularPontos(mao) {
+            let p = 0;
+            let ases = 0;
+            for (let c of mao) {
+                p += PONTOS[c.valor];
+                if (c.valor === 'A') ases++;
+            }
+            while (p > 21 && ases > 0) {
+                p -= 10;
+                ases--;
+            }
+            return p;
+        }
+
+        function renderizarCartas(mao, elementId, virarPrimeira = false) {
+            let el = document.getElementById(elementId);
+            el.innerHTML = '';
+            mao.forEach((carta, idx) => {
+                let div = document.createElement('div');
+                div.className = 'carta ' + (['♠', '♣'].includes(carta.naipe) ? 'preta' : 'vermelha');
+                if (virarPrimeira && idx === 0) {
+                    div.className = 'carta verso';
+                    div.textContent = '';
+                } else {
+                    div.textContent = carta.valor;
+                }
+                el.appendChild(div);
+            });
+        }
+
+        function carregarSaldo() {
+            let s = localStorage.getItem('casinoSaldo');
+            if (s) {
+                jogo.saldo = parseInt(s);
+            }
+            atualizarDisplay();
+        }
+
+        function salvarSaldo() {
+            localStorage.setItem('casinoSaldo', jogo.saldo);
+        }
+
+        function atualizarDisplay() {
+            document.getElementById('saldo').textContent = jogo.saldo;
+            document.getElementById('saldoInfo').textContent = jogo.saldo;
+            document.getElementById('aposta').textContent = jogo.aposta;
+            
+            let pDealer = jogo.playerParou ? calcularPontos(jogo.maoDealer) : '?';
+            let pPlayer = calcularPontos(jogo.maoPlayer);
+            
+            document.getElementById('dealerPontos').textContent = 'Pontos: ' + pDealer;
+            document.getElementById('playerPontos').textContent = 'Pontos: ' + pPlayer;
+        }
+
+        function fazerAposta(valor) {
+            if (jogo.jogoAtivo) return;
+            if (valor > jogo.saldo) {
+                alert('Saldo insuficiente! Você tem ' + jogo.saldo + ' fichas.');
+                return;
+            }
+            if (valor <= 0) {
+                alert('Digite um valor válido!');
+                return;
+            }
+            jogo.aposta = valor;
+            document.getElementById('saldo').textContent = jogo.saldo - valor;
+            document.getElementById('aposta').textContent = valor;
+            document.getElementById('apostasDiv').style.opacity = '0.5';
+        }
+
+        function duplicarAposta() {
+            if (jogo.jogoAtivo) return;
+            let ultimaAposta = jogo.aposta > 0 ? jogo.aposta : 0;
+            let novaAposta = ultimaAposta * 2;
+            if (novaAposta === 0) {
+                alert('Faça uma aposta primeiro!');
+                return;
+            }
+            fazerAposta(novaAposta);
+        }
+
+        function apostarTudo() {
+            if (jogo.jogoAtivo) return;
+            fazerAposta(jogo.saldo);
+        }
+
+        function fazerApostaCustom() {
+            let val = parseInt(document.getElementById('apostaCustom').value);
+            if (isNaN(val) || val <= 0) {
+                alert('Digite um valor válido!');
+                return;
+            }
+            if (val > jogo.saldo) {
+                alert('Seu saldo é ' + jogo.saldo + ' fichas!\nVocê tentou apostar ' + val + '.');
+                return;
+            }
+            fazerAposta(val);
+            document.getElementById('apostaCustom').value = '';
+        }
+
+        function iniciarJogo() {
+            if (jogo.aposta === 0) {
+                alert('Escolha uma aposta primeiro!');
+                return;
+            }
+
+            jogo.saldo -= jogo.aposta;
+            jogo.jogoAtivo = true;
+            jogo.playerParou = false;
+            jogo.maoDealer = [];
+            jogo.maoPlayer = [];
+
+            document.getElementById('resultado').classList.remove('show', 'vitoria', 'derrota', 'empate');
+            document.getElementById('apostasDiv').style.opacity = '0.5';
+
+            jogo.maoPlayer.push(pegarCarta());
+            jogo.maoDealer.push(pegarCarta());
+            jogo.maoPlayer.push(pegarCarta());
+            jogo.maoDealer.push(pegarCarta());
+
+            renderizarCartas(jogo.maoPlayer, 'playerCartas');
+            renderizarCartas(jogo.maoDealer, 'dealerCartas', true);
+            atualizarDisplay();
+
+            let pP = calcularPontos(jogo.maoPlayer);
+            let pD = calcularPontos(jogo.maoDealer);
+
+            if (pP === 21 && pD === 21) {
+                finalizarJogo('EMPATE! Blackjack para ambos!', 'empate');
+            } else if (pP === 21) {
+                finalizarJogo('VOCÊ GANHOU! BLACKJACK! 🎉', 'vitoria');
+            } else if (pD === 21) {
+                renderizarCartas(jogo.maoDealer, 'dealerCartas', false);
+                atualizarDisplay();
+                finalizarJogo('DEALER TEM BLACKJACK! Você perdeu!', 'derrota');
+            } else {
+                document.getElementById('btnComprar').disabled = false;
+                document.getElementById('btnParar').disabled = false;
+                document.getElementById('btnJogar').disabled = true;
+            }
+        }
+
+        function comprarCarta() {
+            if (!jogo.jogoAtivo || jogo.playerParou) return;
+
+            jogo.maoPlayer.push(pegarCarta());
+            renderizarCartas(jogo.maoPlayer, 'playerCartas');
+
+            let p = calcularPontos(jogo.maoPlayer);
+            atualizarDisplay();
+
+            if (p > 21) {
+                finalizarJogo('VOCÊ ESTOUROU! Perdeu! 💥', 'derrota');
+            } else if (p === 21) {
+                parar();
+            }
+        }
+
+        function parar() {
+            if (!jogo.jogoAtivo) return;
+
+            jogo.playerParou = true;
+            jogo.jogoAtivo = false;
+
+            renderizarCartas(jogo.maoDealer, 'dealerCartas', false);
+            atualizarDisplay();
+
+            document.getElementById('btnComprar').disabled = true;
+            document.getElementById('btnParar').disabled = true;
+
+            setTimeout(jogarDealer, 800);
+        }
+
+        function jogarDealer() {
+            let pD = calcularPontos(jogo.maoDealer);
+            let pP = calcularPontos(jogo.maoPlayer);
+
+            let intervalo = setInterval(() => {
+                if (pD >= 17) {
+                    clearInterval(intervalo);
+                    compararResultado(pP, pD);
+                    return;
+                }
+                jogo.maoDealer.push(pegarCarta());
+                renderizarCartas(jogo.maoDealer, 'dealerCartas', false);
+                pD = calcularPontos(jogo.maoDealer);
+                atualizarDisplay();
+            }, 800);
+        }
+
+        function compararResultado(pP, pD) {
+            if (pD > 21) {
+                finalizarJogo('DEALER ESTOUROU! Você venceu! 🎉', 'vitoria');
+            } else if (pP > pD) {
+                finalizarJogo('VOCÊ VENCEU! 🎉', 'vitoria');
+            } else if (pD > pP) {
+                finalizarJogo('DEALER VENCEU! Você perdeu!', 'derrota');
+            } else {
+                finalizarJogo('EMPATE! 🤝', 'empate');
+            }
+        }
+
+        function finalizarJogo(msg, tipo) {
+            jogo.jogoAtivo = false;
+
+            let res = document.getElementById('resultado');
+            res.classList.add('show', tipo);
+            document.getElementById('resultadoTexto').textContent = msg;
+
+            if (tipo === 'vitoria') {
+                if (msg.includes('BLACKJACK')) {
+                    jogo.saldo += jogo.aposta * 2.5;
+                } else {
+                    jogo.saldo += jogo.aposta * 2;
+                }
+            } else if (tipo === 'empate') {
+                jogo.saldo += jogo.aposta;
+            }
+
+            atualizarDisplay();
+            salvarSaldo();
+
+            document.getElementById('btnComprar').disabled = true;
+            document.getElementById('btnParar').disabled = true;
+            document.getElementById('btnNovo').disabled = false;
+        }
+
+        function novaRodada() {
+            jogo.aposta = 0; // ZERAR APOSTA PARA PODER APOSTAR DE NOVO
+            jogo.playerParou = false;
+            jogo.maoDealer = [];
+            jogo.maoPlayer = [];
+
+            document.getElementById('playerCartas').innerHTML = '';
+            document.getElementById('dealerCartas').innerHTML = '';
+            document.getElementById('playerPontos').textContent = 'Pontos: -';
+            document.getElementById('dealerPontos').textContent = 'Pontos: -';
+            document.getElementById('resultado').classList.remove('show', 'vitoria', 'derrota', 'empate');
+            document.getElementById('apostasDiv').style.opacity = '1';
+
+            document.getElementById('btnJogar').disabled = false;
+            document.getElementById('btnNovo').disabled = true;
+            document.getElementById('btnComprar').disabled = true;
+            document.getElementById('btnParar').disabled = true;
+            document.getElementById('apostaCustom').value = '';
+
+            let btnDobrar = document.getElementById('btnDobrar');
+            btnDobrar.disabled = true;
+            btnDobrar.textContent = '2x Anterior';
+
+            atualizarDisplay();
+        }
+
+        carregarSaldo();
+        jogo.baralho = criarBaralho();
+    </script>
+    <audio id="musica" loop preload="auto" src="musica.m4a"></audio>
+    <button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
+
+    <script>
+        (function () {
+            const musica = document.getElementById('musica');
+            const btn = document.getElementById('musicaBtn');
+            const CH_MUDO = 'casinoMusicaMutada', CH_POS = 'casinoMusicaPos';
+            const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+            const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+            let mutada = ler(CH_MUDO) === '1';
+
+            function atualizar() {
+                const tocando = !musica.paused;
+                btn.textContent = tocando ? '🔊' : '🔇';
+                btn.classList.toggle('tocando', tocando);
+            }
+            function tocar() { return musica.play().then(atualizar).catch(atualizar); }
+
+            window.alternarMusica = function () {
+                if (musica.paused) { mutada = false; gravar(CH_MUDO, '0'); tocar(); }
+                else { mutada = true; gravar(CH_MUDO, '1'); musica.pause(); atualizar(); }
+            };
+
+            musica.volume = 0.6;
+            const pos = parseFloat(ler(CH_POS));
+            if (pos > 0) musica.addEventListener('loadedmetadata', () => { try { musica.currentTime = pos; } catch (e) {} }, { once: true });
+            let ult = 0;
+            musica.addEventListener('timeupdate', () => { const t = Date.now(); if (t - ult > 1000) { ult = t; gravar(CH_POS, musica.currentTime); } });
+            window.addEventListener('pagehide', () => gravar(CH_POS, musica.currentTime));
+
+            if (!mutada) {
+                musica.play().then(atualizar).catch(() => {
+                    const iniciar = () => {
+                        if (!mutada && musica.paused) tocar();
+                        document.removeEventListener('pointerdown', iniciar);
+                    };
+                    document.addEventListener('pointerdown', iniciar);
+                });
+            }
+            atualizar();
+        })();
+    </script>
+</body>
+</html>

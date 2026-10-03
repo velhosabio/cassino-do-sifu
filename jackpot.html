@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cassino do Sifu - Jackpot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        h1 {
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .btn-voltar {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-voltar:hover {
+            background: #3ba49b;
+            transform: scale(1.05);
+        }
+        
+        .info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .info-item {
+            background: rgba(212, 175, 55, 0.2);
+            border: 2px solid #d4af37;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        
+        .info-value {
+            color: #00ff00;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .maquina {
+            background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+            border: 12px solid #d4af37;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .rolos-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            perspective: 1000px;
+        }
+        
+        .rolo {
+            width: 100px;
+            height: 120px;
+            background: #000;
+            border: 3px solid #ffd700;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .rolo.girando {
+            animation: girarRoloContínuo 0.08s linear infinite;
+            border-color: #ffff00;
+            box-shadow: inset 0 0 15px rgba(255, 255, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        @keyframes girarRoloContínuo {
+            0% {
+                transform: translateY(0px);
+            }
+            100% {
+                transform: translateY(-30px);
+            }
+        }
+        
+        .simbolo {
+            display: block;
+            font-size: 50px;
+            line-height: 1;
+        }
+        
+        .resultado-jackpot {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .resultado-jackpot.oculto {
+            display: none;
+        }
+        
+        .resultado-texto {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        
+        .resultado-jackpot.ganho .resultado-texto {
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+        
+        .resultado-jackpot.perda .resultado-texto {
+            color: #ff6b6b;
+        }
+        
+        .premio-valor {
+            font-size: 1.2rem;
+            color: #00ff00;
+            margin-top: 5px;
+        }
+        
+        .tabela-pagamentos {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .tabela-pagamentos h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .tabela-linhas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .tabela-linha {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 5px;
+            border-left: 3px solid #d4af37;
+        }
+        
+        .controles {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .controles h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+        
+        .aposta-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .aposta-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8c1e 100%);
+            color: #000;
+            box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+        }
+        
+        .aposta-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(212, 175, 55, 0.5);
+        }
+        
+        .btn-girar {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn-girar:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.5);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .historico {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .historico h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+        
+        #historico-lista {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+        
+        .historico-item {
+            padding: 5px 10px;
+            border-left: 3px solid #d4af37;
+            margin-bottom: 5px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 3px;
+        }
+        
+        .historico-ganho {
+            color: #00ff00;
+        }
+        
+        .historico-perda {
+            color: #ff6b6b;
+        }
+        
+        .info-aposta {
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .rolo {
+                width: 80px;
+                height: 100px;
+                font-size: 30px;
+            }
+            
+            .simbolo {
+                font-size: 40px;
+            }
+            
+            .resultado-texto {
+                font-size: 1.2rem;
+            }
+            
+            .tabela-linhas {
+                grid-template-columns: 1fr;
+            }
+        }
+        .musica-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            background: rgba(15, 52, 96, 0.9);
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 900;
+            padding: 0;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .musica-btn.tocando { animation: glow-btn 1.5s ease-in-out infinite; }
+        @keyframes glow-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 JACKPOT</h1>
+            <a href="index.html" class="btn-voltar">← Voltar</a>
+        </div>
+        
+        <div class="info">
+            <div class="info-item">
+                <div class="info-label">SEU SALDO</div>
+                <div class="info-value" id="saldoJogador">1000</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">APOSTA</div>
+                <div class="info-value" id="apostaAtual">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">BANCA</div>
+                <div class="info-value" id="saldoBanca">100000</div>
+            </div>
+        </div>
+        
+        <div class="maquina">
+            <div class="rolos-container">
+                <div class="rolo" id="rolo1"></div>
+                <div class="rolo" id="rolo2"></div>
+                <div class="rolo" id="rolo3"></div>
+            </div>
+            
+            <div class="resultado-jackpot oculto" id="resultado">
+                <div class="resultado-texto" id="resultadoTexto"></div>
+                <div class="premio-valor" id="premioValor"></div>
+            </div>
+        </div>
+        
+        <div class="tabela-pagamentos">
+            <h3>📊 Tabela de Pagamentos</h3>
+            <div class="tabela-linhas">
+                <div class="tabela-linha">
+                    <span>3 Moedas</span>
+                    <strong style="color: #ffd700;">5x</strong>
+                </div>
+                <div class="tabela-linha">
+                    <span>3 Sinos</span>
+                    <strong style="color: #ffd700;">8x</strong>
+                </div>
+                <div class="tabela-linha">
+                    <span>3 Tigres</span>
+                    <strong style="color: #ff9900;">12x</strong>
+                </div>
+                <div class="tabela-linha">
+                    <span>3 Dragões</span>
+                    <strong style="color: #ff3333;">20x</strong>
+                </div>
+                <div class="tabela-linha">
+                    <span>3 Yin-Yang</span>
+                    <strong style="color: #ff0099;">30x</strong>
+                </div>
+                <div class="tabela-linha">
+                    <span>🎰 3 Setes</span>
+                    <strong style="color: #00ff00;">50x</strong>
+                </div>
+                <div class="tabela-linha">
+                    <span>2 Iguais</span>
+                    <strong style="color: #888;">1x</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controles">
+            <h3>Escolha sua Aposta</h3>
+            <div class="aposta-buttons">
+                <button class="aposta-btn" onclick="fazerAposta(10)">10 fichas</button>
+                <button class="aposta-btn" onclick="fazerAposta(25)">25 fichas</button>
+                <button class="aposta-btn" onclick="fazerAposta(50)">50 fichas</button>
+                <button class="aposta-btn" onclick="fazerAposta(100)">100 fichas</button>
+            </div>
+            <div class="info-aposta">Seu saldo: <span id="saldoInfo">1000</span> fichas</div>
+            
+            <button class="btn-girar" id="btnGirar" onclick="girar()" disabled>🎲 GIRAR 🎲</button>
+        </div>
+        
+        <div class="historico">
+            <h3>📜 Últimos 10 Giros</h3>
+            <div id="historico-lista"></div>
+        </div>
+    </div>
+
+    <script>
+        const SIMBOLOS = ['🥚', '🐵', '☯️', '🪙', '🔔', '🍒', '7️⃣', '🐯'];
+        const SIMBOLO_NOMES = ['Ovo', 'Macaco', 'Yin-Yang', 'Moeda', 'Sino', 'Cereja', 'Sete', 'Tigre'];
+        
+        // Tabela de pagamentos exato
+        const PAYTABLE = {
+            '🪙🪙🪙': 5,
+            '🔔🔔🔔': 8,
+            '🐯🐯🐯': 12,
+            '🧠🧠🧠': 20, // dragão?
+            '☯️☯️☯️': 30,
+            '7️⃣7️⃣7️⃣': 50,
+            // 2 iguais devolve (1x)
+        };
+
+        const MAX_PLAYER_BALANCE = 1000;
+        const STARTING_PLAYER_BALANCE = 1000;
+        const STARTING_BANK_BALANCE = 100000;
+
+        let jogo = {
+            saldoJogador: STARTING_PLAYER_BALANCE,
+            saldoBanca: STARTING_BANK_BALANCE,
+            aposta: 0,
+            emGiro: false,
+            historico: []
+        };
+
+        function carregarSaldo() {
+            let s = localStorage.getItem('casinoSaldo');
+            if (s) {
+                jogo.saldoJogador = Math.min(parseInt(s), MAX_PLAYER_BALANCE);
+            }
+            atualizarDisplay();
+        }
+
+        function salvarSaldo() {
+            localStorage.setItem('casinoSaldo', jogo.saldoJogador);
+        }
+
+        function atualizarDisplay() {
+            document.getElementById('saldoJogador').textContent = jogo.saldoJogador;
+            document.getElementById('saldoInfo').textContent = jogo.saldoJogador;
+            document.getElementById('saldoBanca').textContent = jogo.saldoBanca;
+            document.getElementById('apostaAtual').textContent = jogo.aposta;
+            
+            // Habilitar/desabilitar botão girar
+            document.getElementById('btnGirar').disabled = jogo.aposta === 0 || jogo.emGiro || jogo.saldoJogador <= 0;
+        }
+
+        function fazerAposta(valor) {
+            if (jogo.emGiro) return;
+            if (valor > jogo.saldoJogador) {
+                alert('Saldo insuficiente!');
+                return;
+            }
+            jogo.aposta = valor;
+            atualizarDisplay();
+        }
+
+        function girar() {
+            if (jogo.aposta === 0 || jogo.emGiro) return;
+            if (jogo.saldoJogador <= 0) {
+                alert('Você não tem fichas!');
+                return;
+            }
+
+            jogo.emGiro = true;
+            
+            // DEBITAR aposta
+            jogo.saldoJogador -= jogo.aposta;
+            jogo.saldoBanca += jogo.aposta;
+            atualizarDisplay();
+
+            // Gerar resultado final
+            let resultado = [];
+            for (let i = 0; i < 3; i++) {
+                resultado.push(SIMBOLOS[Math.floor(Math.random() * SIMBOLOS.length)]);
+            }
+
+            let rolos = document.querySelectorAll('.rolo');
+            
+            // Inicia animação contínua de todos os rolos
+            let intervalos = [];
+            rolos.forEach((rolo, idx) => {
+                rolo.classList.add('girando');
+                
+                // Cada rolo gira continuamente mostrando símbolos aleatórios
+                let intervalo = setInterval(() => {
+                    let simboloAleatorio = SIMBOLOS[Math.floor(Math.random() * SIMBOLOS.length)];
+                    rolo.innerHTML = '<span class="simbolo">' + simboloAleatorio + '</span>';
+                }, 80); // Muda de símbolo a cada 80ms para efeito rápido
+                
+                intervalos.push({ intervalo, rolo, idx });
+            });
+
+            // ROLO 1: Para depois de 1,5 segundos
+            setTimeout(() => {
+                clearInterval(intervalos[0].intervalo);
+                rolos[0].classList.remove('girando');
+                rolos[0].innerHTML = '<span class="simbolo">' + resultado[0] + '</span>';
+            }, 1500);
+
+            // ROLO 2: Para depois de 2,5 segundos (1 segundo após o primeiro)
+            setTimeout(() => {
+                clearInterval(intervalos[1].intervalo);
+                rolos[1].classList.remove('girando');
+                rolos[1].innerHTML = '<span class="simbolo">' + resultado[1] + '</span>';
+            }, 2500);
+
+            // ROLO 3: Para depois de 3,5 segundos (1 segundo após o segundo)
+            setTimeout(() => {
+                clearInterval(intervalos[2].intervalo);
+                rolos[2].classList.remove('girando');
+                rolos[2].innerHTML = '<span class="simbolo">' + resultado[2] + '</span>';
+                
+                // Após o terceiro parar, calcula resultado
+                setTimeout(() => {
+                    calcularResultado(resultado);
+                    jogo.emGiro = false;
+                    atualizarDisplay();
+                }, 300);
+            }, 3500);
+        }
+
+        function calcularResultado(rolos) {
+            const [r1, r2, r3] = rolos;
+            const todos = r1 + r2 + r3;
+
+            let premio = 0;
+            let mensagem = '';
+
+            // Verificar 3 iguais
+            if (r1 === r2 && r2 === r3) {
+                if (PAYTABLE[todos]) {
+                    premio = jogo.aposta * PAYTABLE[todos];
+                    mensagem = '🎉 3 IGUAIS! Você ganhou ' + PAYTABLE[todos] + 'x!';
+                } else {
+                    premio = jogo.aposta * 3; // default 3x
+                    mensagem = '✨ 3 IGUAIS! Você ganhou 3x!';
+                }
+            }
+            // Verificar 2 iguais
+            else if ((r1 === r2) || (r2 === r3) || (r1 === r3)) {
+                premio = jogo.aposta; // devolve aposta
+                mensagem = '⭐ 2 Iguais! Sua aposta foi devolvida!';
+            }
+            // Nada
+            else {
+                premio = 0;
+                mensagem = '❌ Nada! Sua aposta foi perdida!';
+            }
+
+            // LIMITAR ao saldo máximo do jogador
+            // Se premio faria passar de MAX_PLAYER_BALANCE, limita
+            let saldoDepois = jogo.saldoJogador + premio;
+            if (saldoDepois > MAX_PLAYER_BALANCE) {
+                let premioLimitado = MAX_PLAYER_BALANCE - jogo.saldoJogador;
+                jogo.saldoBanca -= premioLimitado;
+                jogo.saldoJogador = MAX_PLAYER_BALANCE;
+                
+                // Atualizar mensagem
+                if (premio > 0) {
+                    mensagem = '⚠️ ' + mensagem + ' (Limitado a ' + premioLimitado + ' fichas)';
+                }
+                premio = premioLimitado;
+            } else {
+                jogo.saldoJogador += premio;
+                jogo.saldoBanca -= premio;
+            }
+
+            // Mostrar resultado
+            mostrarResultado(mensagem, premio);
+            adicionarHistorico(rolos, premio);
+            salvarSaldo();
+        }
+
+        function mostrarResultado(msg, premio) {
+            let res = document.getElementById('resultado');
+            res.classList.remove('oculto', 'ganho', 'perda');
+            
+            if (premio > 0) {
+                res.classList.add('ganho');
+            } else {
+                res.classList.add('perda');
+            }
+            
+            document.getElementById('resultadoTexto').textContent = msg;
+            document.getElementById('premioValor').textContent = premio > 0 ? '+' + premio + ' fichas' : '-' + jogo.aposta + ' fichas';
+        }
+
+        function adicionarHistorico(rolos, premio) {
+            const texto = rolos.join('') + ' → ' + (premio > 0 ? '+' + premio : '-' + jogo.aposta);
+            const classe = premio > 0 ? 'historico-ganho' : 'historico-perda';
+            
+            jogo.historico.unshift({ texto, classe });
+            if (jogo.historico.length > 10) jogo.historico.pop();
+
+            let lista = document.getElementById('historico-lista');
+            lista.innerHTML = jogo.historico.map(h => 
+                '<div class="historico-item ' + h.classe + '">' + h.texto + '</div>'
+            ).join('');
+        }
+
+        carregarSaldo();
+    </script>
+    <audio id="musica" loop preload="auto" src="musica.m4a"></audio>
+    <button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
+
+    <script>
+        (function () {
+            const musica = document.getElementById('musica');
+            const btn = document.getElementById('musicaBtn');
+            const CH_MUDO = 'casinoMusicaMutada', CH_POS = 'casinoMusicaPos';
+            const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+            const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+            let mutada = ler(CH_MUDO) === '1';
+
+            function atualizar() {
+                const tocando = !musica.paused;
+                btn.textContent = tocando ? '🔊' : '🔇';
+                btn.classList.toggle('tocando', tocando);
+            }
+            function tocar() { return musica.play().then(atualizar).catch(atualizar); }
+
+            window.alternarMusica = function () {
+                if (musica.paused) { mutada = false; gravar(CH_MUDO, '0'); tocar(); }
+                else { mutada = true; gravar(CH_MUDO, '1'); musica.pause(); atualizar(); }
+            };
+
+            musica.volume = 0.6;
+            const pos = parseFloat(ler(CH_POS));
+            if (pos > 0) musica.addEventListener('loadedmetadata', () => { try { musica.currentTime = pos; } catch (e) {} }, { once: true });
+            let ult = 0;
+            musica.addEventListener('timeupdate', () => { const t = Date.now(); if (t - ult > 1000) { ult = t; gravar(CH_POS, musica.currentTime); } });
+            window.addEventListener('pagehide', () => gravar(CH_POS, musica.currentTime));
+
+            if (!mutada) {
+                musica.play().then(atualizar).catch(() => {
+                    const iniciar = () => {
+                        if (!mutada && musica.paused) tocar();
+                        document.removeEventListener('pointerdown', iniciar);
+                    };
+                    document.addEventListener('pointerdown', iniciar);
+                });
+            }
+            atualizar();
+        })();
+    </script>
+</body>
+</html>

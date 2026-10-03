@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truco - Cassino do Sifu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+            margin-bottom: 10px;
+        }
+        
+        .saldo-top {
+            background: rgba(212, 175, 55, 0.15);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: inline-block;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .mesa {
+            background: linear-gradient(135deg, #0d5f2d 0%, #1a3a2e 100%);
+            border: 4px solid #d4af37;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+        
+        .placar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .jogador-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .jogador-nome {
+            color: #d4af37;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .jogador-pontos {
+            font-size: 2.5rem;
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+        }
+        
+        .info-linha {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #d4af37;
+            border-radius: 6px;
+            padding: 10px 15px;
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #b8a86b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .info-valor {
+            color: #d4af37;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        
+        .turno-info {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffb74d;
+            font-weight: bold;
+        }
+        
+        .mesa-rodada {
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .titulo-rodada {
+            text-align: center;
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .cartas-rodada {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .area-carta {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .area-nome {
+            color: #b8a86b;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .carta-display {
+            background: white;
+            border: 3px solid #333;
+            border-radius: 8px;
+            width: 80px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .carta-display.vazia {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: #666;
+            color: #666;
+            font-size: 3rem;
+        }
+        
+        .carta-display.vermelha {
+            color: #ff0000;
+        }
+        
+        .cartas-jogador {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .carta-player {
+            background: #fff;
+            color: #111;
+            border: 3px solid #333;
+            border-radius: 8px;
+            width: 70px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        
+        .carta-player:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        .carta-player.selecionada {
+            background: #fffbe6;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            transform: translateY(-8px);
+        }
+        
+        .carta-player.vermelha {
+            color: #d32f2f;
+        }
+        
+        .carta-player:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .mensagem {
+            text-align: center;
+            color: #00ff00;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 25px;
+            font-size: 0.95rem;
+        }
+        
+        .botoes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a39a 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-truco {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        
+        .btn-correr {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+        
+        .btn-voltar {
+            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+        }
+        
+        .tela-aposta {
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid #d4af37;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .aposta-titulo {
+            color: #d4af37;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .aposta-opcoes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .aposta-btn {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a39a 100%);
+            color: white;
+            padding: 12px 25px;
+            border: 2px solid #d4af37;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .aposta-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.5);
+        }
+        
+        .resultado-rodada {
+            background: rgba(0, 255, 0, 0.15);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .resultado-rodada.derrota {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        
+        .resultado-rodada.empate {
+            background: rgba(255, 152, 0, 0.15);
+            border-color: #ff9800;
+            color: #ffb74d;
+        }
+        
+        .modal-aumento {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            border: 3px solid #d4af37;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            z-index: 1000;
+            min-width: 300px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal-aumento h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .modal-aumento p {
+            color: #b8a86b;
+            margin-bottom: 20px;
+        }
+        
+        .modal-botoes {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .modal-botoes button {
+            padding: 12px 25px;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .mesa { padding: 20px; }
+            .placar { grid-template-columns: 1fr; }
+            .carta-player { width: 60px; height: 85px; font-size: 0.85rem; }
+            button { padding: 8px 14px; font-size: 0.85rem; }
+        }
+        #btnEsconder:disabled { opacity: 0.5; cursor: not-allowed; }
+        #telaJogoDuplas button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .d-info { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; color: #b8a86b; font-size: 0.95rem; margin-top: 8px; }
+        .d-info b { color: #d4af37; }
+        .d-mesa { display: grid; grid-template-columns: 1fr 1.6fr 1fr; grid-template-areas: ". topo ." "esq centro dir"; gap: 10px; align-items: center; background: rgba(0,0,0,0.3); border: 2px solid #d4af37; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .d-topo { grid-area: topo; text-align: center; }
+        .d-esq { grid-area: esq; }
+        .d-dir { grid-area: dir; }
+        .d-centro { grid-area: centro; }
+        .d-assento { border: 2px solid #555; border-radius: 8px; padding: 8px; text-align: center; background: rgba(0,0,0,0.45); transition: all 0.2s; }
+        .d-assento.ativa { border-color: #4ecca3; box-shadow: 0 0 12px rgba(78,204,163,0.6); }
+        .d-voce { margin-bottom: 4px; }
+        .d-nome { color: #d4af37; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; }
+        .d-contagem { color: #ccc; font-size: 0.9rem; }
+        .d-cruz { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, auto); gap: 6px; justify-items: center; align-items: center; min-height: 150px; }
+        .d-c-topo { grid-column: 2; grid-row: 1; }
+        .d-c-esq { grid-column: 1; grid-row: 2; }
+        .d-c-dir { grid-column: 3; grid-row: 2; }
+        .d-c-inf { grid-column: 2; grid-row: 3; }
+        .d-carta { display: flex; align-items: center; justify-content: center; min-height: 58px; min-width: 44px; padding: 8px 6px; border-radius: 6px; background: #fff; color: #111; font-weight: bold; font-size: 1.05rem; text-align: center; }
+        .d-carta.vermelha { color: #d32f2f; }
+        .d-carta.vazia { background: rgba(255,255,255,0.08); color: #888; }
+        .d-carta.verso { width: 44px; height: 58px; padding: 0; border-radius: 6px; }
+        .area-verso { text-align: center; min-height: 42px; margin-bottom: 6px; }
+        .musica-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            background: rgba(15, 52, 96, 0.9);
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 900;
+            padding: 0;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .musica-btn.tocando { animation: glow-btn 1.5s ease-in-out infinite; }
+        @keyframes glow-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 1); }
+        }
+        .d-placar { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; margin-bottom: 10px; }
+        .d-time { border-radius: 12px; padding: 10px 6px; text-align: center; background: rgba(0,0,0,0.4); border: 2px solid #555; }
+        .d-t1 { border-color: #4ecca3; box-shadow: 0 0 12px rgba(78,204,163,0.25); }
+        .d-t2 { border-color: #ff6b6b; box-shadow: 0 0 12px rgba(255,107,107,0.25); }
+        .d-time-nome { font-weight: bold; letter-spacing: 2px; font-size: 0.85rem; }
+        .d-t1 .d-time-nome, .d-t1 .d-time-pts { color: #4ecca3; }
+        .d-t2 .d-time-nome, .d-t2 .d-time-pts { color: #ff6b6b; }
+        .d-time-sub { color: #b8a86b; font-size: 0.75rem; margin-bottom: 2px; }
+        .d-time-pts { font-size: 2.6rem; font-weight: bold; line-height: 1.1; text-shadow: 0 0 12px currentColor; }
+        .d-time-meta { color: #888; font-size: 0.7rem; }
+        .d-vira { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 4px; }
+        .d-vira-label { color: #d4af37; font-weight: bold; letter-spacing: 3px; font-size: 0.8rem; margin-bottom: 4px; }
+        .d-vira-carta { background: #fff; color: #111; border: 3px solid #d4af37; border-radius: 10px; min-width: 64px; padding: 14px 8px; font-size: 1.8rem; font-weight: bold; text-align: center; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
+        .d-vira-carta.vermelha { color: #d32f2f; }
+        .d-chips { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+        .d-chip { display: flex; gap: 8px; align-items: center; background: rgba(212,175,55,0.12); border: 1px solid #d4af37; border-radius: 20px; padding: 6px 14px; color: #b8a86b; font-size: 0.9rem; }
+        .d-chip b { color: #d4af37; font-size: 1.15rem; }
+        .d-msg { color: #d4af37; text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; font-weight: bold; }
+        @media (max-width: 480px) {
+            .d-time-pts { font-size: 2.1rem; }
+            .d-vira-carta { min-width: 54px; font-size: 1.5rem; padding: 10px 6px; }
+            .d-time-sub { font-size: 0.68rem; }
+        }
+
+        /* Verso padrão das cartas (losangos dourados sobre azul) */
+        .verso {
+            background-color: #0f3460 !important;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(212,175,55,0.55) 0 2px, transparent 2px 9px),
+                repeating-linear-gradient(-45deg, rgba(212,175,55,0.55) 0 2px, transparent 2px 9px) !important;
+            border: 3px solid #fff !important;
+            box-shadow: inset 0 0 0 3px #0f3460, inset 0 0 0 5px #d4af37, 0 4px 8px rgba(0,0,0,0.5) !important;
+            color: transparent !important;
+            font-size: 0 !important;
+        }
+        .verso.mini { display: inline-block; width: 26px; height: 38px; min-width: 0; padding: 0; border-width: 2px !important; border-radius: 4px; margin: 0 2px; vertical-align: middle; box-shadow: inset 0 0 0 2px #0f3460, inset 0 0 0 3px #d4af37 !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 TRUCO 🃏</h1>
+            <div class="saldo-top">Saldo: <span id="saldoDisplay">1000</span></div>
+        </div>
+        
+        <div id="telaAposta" class="tela-aposta">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="color: #d4af37; font-size: 1.1rem; margin-bottom: 10px;">Escolha o modo</div>
+                <button id="btnIndividual" class="aposta-btn" onclick="selecionarModo('individual')" style="border-color: #d4af37; background: rgba(212,175,55,0.2);">1v1 (Individual)</button>
+                <button id="btnDuplas" class="aposta-btn" onclick="selecionarModo('duplas')" style="margin-left: 10px; opacity: 0.6;">2x2 (Duplas)</button>
+            </div>
+            <div class="aposta-titulo">Escolha sua aposta</div>
+            <div class="aposta-opcoes">
+                <button class="aposta-btn" onclick="iniciarComAposta(10)">10 fichas</button>
+                <button class="aposta-btn" onclick="iniciarComAposta(25)">25 fichas</button>
+                <button class="aposta-btn" onclick="iniciarComAposta(50)">50 fichas</button>
+                <button class="aposta-btn" onclick="iniciarComAposta(100)">100 fichas</button>
+            </div>
+            <div style="color: #b8a86b; margin-top: 15px;">Ou: <input type="number" id="apostaCustom" placeholder="Valor" min="1" max="10000" style="padding: 8px; border-radius: 4px; border: none; width: 100px;">
+            <button onclick="iniciarComAposta(document.getElementById('apostaCustom').value)" style="margin-left: 10px;">Apostar</button></div>
+        </div>
+        
+        <div id="telaJogo" class="mesa" style="display:none;">
+            <div class="placar">
+                <div class="jogador-box">
+                    <div class="jogador-nome">👤 Você</div>
+                    <div class="jogador-pontos" id="pontoJogador">0</div>
+                </div>
+                <div class="jogador-box">
+                    <div class="jogador-nome">🤖 CPU</div>
+                    <div class="jogador-pontos" id="pontoCPU">0</div>
+                </div>
+            </div>
+            
+            <div class="info-linha">
+                <div class="info-item">
+                    <div class="info-label">Valor Mão</div>
+                    <div class="info-valor" id="valorMao">1</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Vira</div>
+                    <div class="info-valor" id="cartaViraIndividual">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Rodada</div>
+                    <div class="info-valor" id="rodada">1/3</div>
+                </div>
+            </div>
+            
+            <div class="turno-info" id="turnoInfo">Sua vez de jogar!</div>
+            
+            <div class="mesa-rodada">
+                <div class="titulo-rodada">Mesa da Rodada</div>
+                <div class="cartas-rodada">
+                    <div class="area-carta">
+                        <div class="area-nome">Você</div>
+                        <div class="carta-display" id="cartaJogador">?</div>
+                    </div>
+                    <div style="color: #d4af37; font-weight: bold;">VS</div>
+                    <div class="area-carta">
+                        <div class="area-nome">CPU</div>
+                        <div class="area-verso" id="versoCPU"></div>
+                        <div class="carta-display" id="cartaCPU">?</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="resultadoRodada" class="resultado-rodada" style="display:none;"></div>
+            
+            <div style="text-align: center; color: #d4af37; font-weight: bold; margin-top: 15px;">Suas Cartas</div>
+            <div class="cartas-jogador" id="cartasPlayer"></div>
+            
+            <div style="text-align: center; color: #b8a86b; font-size: 0.9rem;" id="cpuCartas">CPU: 3 cartas</div>
+            
+            <div class="mensagem" id="msg"></div>
+            
+            <div class="botoes">
+                <button id="btnJogar" onclick="jogarCartaSelecionada()">🎴 Jogar Carta</button>
+                <button id="btnEsconder" onclick="esconderCartaSelecionada()" title="Joga a carta virada: ela não vale nada e a rodada vai para o adversário">🙈 Esconder</button>
+                <button class="btn-truco" id="btnAumento" onclick="pedirAumento()">Truco (3)</button>
+                <button class="btn-correr" id="btnCorrer" onclick="correr()">Correr</button>
+                <button class="btn-voltar" onclick="voltarLobby()">← Voltar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modalAumento" class="modal-aumento" style="display:none;">
+        <h2 id="modalTitulo">CPU pediu Truco!</h2>
+        <p id="modalMensagem">Você aceita?</p>
+        <div class="modal-botoes">
+            <button onclick="responderAumento('aceitar')">✓ Aceitar</button>
+            <button onclick="responderAumento('aumentar')" id="btnAumentarResposta">↑ Pedir 6</button>
+            <button class="btn-correr" onclick="responderAumento('correr')">Correr</button>
+        </div>
+    </div>
+
+    <script>
+        const BARALHO_CONFIG = {
+            limpo: { valores: ['Q', 'J', 'K', 'A', '2', '3'], naipes: ['♦', '♠', '♥', '♣'] },
+            sujo: { valores: ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '2', '3'], naipes: ['♦', '♠', '♥', '♣'] }
+        };
+
+        const AUMENTOS = { 1: 3, 3: 6, 6: 9, 9: 12 };
+        const NOMES_AUMENTOS = { 1: 'Truco', 3: 'Seis', 6: 'Nove', 9: 'Doze' };
+
+        let MODO = 'individual';
+        let jogo = {
+            saldo: parseInt(localStorage.getItem('casinoSaldo')) || 1000,
+            aposta: 0,
+            tipo: 'limpo',
+            baralho: [],
+            cartasJ: [], cartasC: [],
+            vira: null,
+            rodada: 1,
+            ptJ: 0, ptC: 0,
+            valorMao: 1,
+            selecionada: -1,
+            rodadasJ: 0, rodadasC: 0,
+            
+            quemJogaPrimeiro: 'jogador',
+            cartaJogadorNamesaRodada: null,
+            cartaCPUNamesaRodada: null,
+            cartaJogadorJogada: false,
+            cartaCPUJogada: false,
+            turmoDaRodada: 'jogador',
+            
+            emAumento: false,
+            ultimoAumento: 0,
+            quemPediuUltimo: null,
+            vencedorRodada1: null // para desempate
+        };
+
+        function salvarSaldo() {
+            localStorage.setItem('casinoSaldo', jogo.saldo);
+            document.getElementById('saldoDisplay').textContent = jogo.saldo;
+        }
+
+        function criarBaralho() {
+            const cfg = BARALHO_CONFIG[jogo.tipo];
+            const deck = [];
+            for (let v of cfg.valores) {
+                for (let n of cfg.naipes) {
+                    deck.push({ v, n });
+                }
+            }
+            return deck.sort(() => Math.random() - 0.5);
+        }
+
+        // Força média da mão da CPU, de 0 (fraca) a 1 (forte). Manilha conta como 1.
+        function forcaMediaCPU() {
+            const n = BARALHO_CONFIG[jogo.tipo].valores.length;
+            let cartas = jogo.cartasC.slice();
+            if (cartas.length === 0 && jogo.cartaCPUNamesaRodada) cartas = [jogo.cartaCPUNamesaRodada];
+            if (cartas.length === 0) return 0.5;
+            const soma = cartas.reduce((s, c) => {
+                const f = forcaCarta(c);
+                return s + (f >= 1000 ? 1 : f / (n - 1));
+            }, 0);
+            let forca = soma / cartas.length;
+            // Ganhando a mão ela fica mais confiante; perdendo, mais cautelosa
+            if (jogo.rodadasC > jogo.rodadasJ) forca += 0.15;
+            else if (jogo.rodadasJ > jogo.rodadasC) forca -= 0.15;
+            return Math.max(0, Math.min(1, forca));
+        }
+
+        function forcaCarta(c) {
+            const cfg = BARALHO_CONFIG[jogo.tipo];
+            const idx = cfg.valores.indexOf(jogo.vira.v);
+            const manilha = cfg.valores[(idx + 1) % cfg.valores.length];
+            
+            // Manilha tem força especial (desempata pelo naipe)
+            if (c.v === manilha) {
+                return 1000 + ['♦', '♠', '♥', '♣'].indexOf(c.n);
+            }
+            
+            // Cartas normais: só a posição do valor (sem naipe)
+            return cfg.valores.indexOf(c.v);
+        }
+
+        function selecionarModo(modo) {
+            MODO = modo;
+            document.getElementById('btnIndividual').style.borderColor = modo === 'individual' ? '#d4af37' : '#555';
+            document.getElementById('btnIndividual').style.background = modo === 'individual' ? 'rgba(212,175,55,0.2)' : 'rgba(0,0,0,0)';
+            document.getElementById('btnIndividual').style.opacity = modo === 'individual' ? '1' : '0.6';
+            document.getElementById('btnDuplas').style.borderColor = modo === 'duplas' ? '#d4af37' : '#555';
+            document.getElementById('btnDuplas').style.background = modo === 'duplas' ? 'rgba(212,175,55,0.2)' : 'rgba(0,0,0,0)';
+            document.getElementById('btnDuplas').style.opacity = modo === 'duplas' ? '1' : '0.6';
+        }
+
+        function iniciarComAposta(val) {
+            const aposta = parseInt(val);
+            if (isNaN(aposta) || aposta <= 0 || aposta > jogo.saldo) {
+                return;
+            }
+            
+            jogo.aposta = aposta;
+            jogo.saldo -= aposta;
+            salvarSaldo();
+            
+            document.getElementById('telaAposta').style.display = 'none';
+            
+            if (MODO === 'individual') {
+                iniciarMao();
+                document.getElementById('telaJogo').style.display = 'block';
+                document.getElementById('telaJogoDuplas').style.display = 'none';
+            } else {
+                document.getElementById('telaJogo').style.display = 'none';
+                document.getElementById('telaJogoDuplas').style.display = 'block';
+                iniciarPartidaDuplas();
+            }
+        }
+
+        function iniciarMao() {
+            jogo.baralho = criarBaralho();
+            jogo.cartasJ = [jogo.baralho.pop(), jogo.baralho.pop(), jogo.baralho.pop()];
+            jogo.cartasC = [jogo.baralho.pop(), jogo.baralho.pop(), jogo.baralho.pop()];
+            jogo.vira = jogo.baralho.pop();
+            jogo.rodada = 1;
+            jogo.rodadasJ = 0;
+            jogo.rodadasC = 0;
+            jogo.valorMao = 1;
+            jogo.selecionada = -1;
+            jogo.emAumento = false;
+            jogo.ultimoAumento = 0;
+            jogo.quemPediuUltimo = null;
+            jogo.vencedorRodada1 = null;
+            
+            jogo.quemJogaPrimeiro = Math.random() > 0.5 ? 'jogador' : 'cpu';
+            iniciarRodada();
+        }
+
+        function iniciarRodada() {
+            jogo.turmoDaRodada = jogo.quemJogaPrimeiro;
+            jogo.cartaJogadorNamesaRodada = null;
+            jogo.cartaCPUNamesaRodada = null;
+            jogo.cartaJogadorJogada = false;
+            jogo.cartaCPUJogada = false;
+            jogo.cartaJogadorEscondida = false;
+            jogo.cartaCPUEscondida = false;
+            jogo.emAumento = false;
+            
+            document.getElementById('resultadoRodada').style.display = 'none';
+            atualizar();
+            
+            if (jogo.turmoDaRodada === 'cpu') {
+                setTimeout(() => jogoCPU(), 500);
+            }
+        }
+
+        // ===== DUPLAS 2x2 =====
+        // Assentos: 0 Topo, 1 Esquerda, 2 Direita, 3 Você.
+        // Parceiros sentam frente a frente: T1 = Você + Topo | T2 = Esquerda + Direita.
+        // Ordem de jogo (horário): Você -> Esquerda -> Topo -> Direita
+        const ORDEM_DUPLAS = [3, 1, 0, 2];
+        let NOME_ASSENTO = { 0: 'Louxas', 1: 'Shifu', 2: 'Dunha', 3: 'Você' };
+        const TIME_ASSENTO = { 0: 't1', 1: 't2', 2: 't2', 3: 't1' };
+        const PROX_VALOR = { 1: 3, 3: 6, 6: 9, 9: 12 };
+        let D = null;
+        let sessaoD = 0;
+
+        function agendarD(fn, ms) {
+            const s = sessaoD;
+            setTimeout(() => { if (s === sessaoD && D) fn(); }, ms);
+        }
+        function msgD(t) { document.getElementById('msgMesa').textContent = t; }
+        function fmtCarta(c) { return c.v + c.n; }
+        function corCarta(c) { return (c.n === '♥' || c.n === '♦') ? 'vermelha' : ''; }
+
+        function forcaD(c) {
+            const cfg = BARALHO_CONFIG[jogo.tipo];
+            const manilha = cfg.valores[(cfg.valores.indexOf(D.vira.v) + 1) % cfg.valores.length];
+            if (c.v === manilha) return 1000 + ['♦', '♠', '♥', '♣'].indexOf(c.n);
+            return cfg.valores.indexOf(c.v);
+        }
+        function forcaMesaD(s) { return D.esc[s] ? -1 : forcaD(D.mesa[s]); }
+        function assentoDaVezD() { return ORDEM_DUPLAS[(D.posInicio + D.jogadas) % 4]; }
+        function vezHumanoD() {
+            return !!D && !D.encerrada && !D.aguardaResposta && D.jogadas < 4 && assentoDaVezD() === 3;
+        }
+
+        function iniciarPartidaDuplas() {
+            sessaoD++;
+            // Sorteia os lugares: às vezes o parceiro é o Shifu, o Louxas ou o Dunha
+            const nn = ['Shifu', 'Louxas', 'Dunha'];
+            for (let i = nn.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [nn[i], nn[j]] = [nn[j], nn[i]]; }
+            NOME_ASSENTO = { 0: nn[0], 1: nn[1], 2: nn[2], 3: 'Você' };
+            const q = s => document.querySelector(s);
+            q('#caixaTopo .d-nome').textContent = '⬆️ ' + nn[0] + ' (parceiro)';
+            q('#caixaEsq .d-nome').textContent = '⬅️ ' + nn[1];
+            q('#caixaDir .d-nome').textContent = nn[2] + ' ➡️';
+            q('#telaJogoDuplas .d-t1 .d-time-sub').textContent = 'Você + ' + nn[0];
+            q('#telaJogoDuplas .d-t2 .d-time-sub').textContent = nn[1] + ' + ' + nn[2];
+            D = { placar: { t1: 0, t2: 0 }, mao: 0 };
+            iniciarMaoDuplas();
+        }
+
+        function iniciarMaoDuplas() {
+            D.mao++;
+            const baralho = criarBaralho();
+            D.maos = {};
+            for (let s = 0; s < 4; s++) D.maos[s] = [baralho.pop(), baralho.pop(), baralho.pop()];
+            D.vira = baralho.pop();
+            D.valor = 1; D.rodada = 1; D.r1 = null;
+            D.ultimoPedido = null; D.pedindo = null;
+            D.encerrada = false; D.aguardaResposta = false;
+            D.posInicio = (D.mao - 1) % 4;
+            D.timeInicio = TIME_ASSENTO[ORDEM_DUPLAS[D.posInicio]];
+            esconderPainelD();
+            iniciarRodadaDuplas();
+        }
+
+        function iniciarRodadaDuplas() {
+            D.mesa = {}; D.esc = {}; D.jogadas = 0; D.sel = -1;
+            proximaJogadaD();
+        }
+
+        function proximaJogadaD() {
+            if (!D || D.encerrada) return;
+            renderD();
+            if (D.jogadas >= 4) { agendarD(resolverRodadaD, 1200); return; }
+            const seat = assentoDaVezD();
+            if (seat === 3) {
+                msgD('👤 SUA VEZ! Escolha uma carta e toque em Jogar');
+            } else {
+                msgD(NOME_ASSENTO[seat] + ' está pensando...');
+                agendarD(() => cpuJogaD(seat), 1000);
+            }
+        }
+
+        function cpuJogaD(seat) {
+            if (D.encerrada || D.aguardaResposta || D.jogadas >= 4 || assentoDaVezD() !== seat) return;
+            if (cpuTalvezPedeD(seat)) return;
+            const idx = escolherCartaD(seat);
+            const esconde = cpuEscondeD(seat, idx);
+            const c = D.maos[seat].splice(idx, 1)[0];
+            D.mesa[seat] = c;
+            D.esc[seat] = esconde;
+            D.jogadas++;
+            msgD(esconde ? '🙈 ' + NOME_ASSENTO[seat] + ' escondeu a carta' : NOME_ASSENTO[seat] + ' jogou ' + fmtCarta(c));
+            renderD();
+            agendarD(proximaJogadaD, 800);
+        }
+
+        function escolherCartaD(seat) {
+            const mao = D.maos[seat];
+            const fs = mao.map(forcaD);
+            const idxMin = fs.indexOf(Math.min(...fs));
+            const idxMax = fs.indexOf(Math.max(...fs));
+            const naMesa = Object.keys(D.mesa).map(s => ({ s: +s, f: forcaMesaD(+s) }));
+            if (naMesa.length === 0) {
+                if (mao.length === 1) return 0;
+                if (D.rodada === 1) {
+                    const ord = fs.map((f, i) => i).sort((a, b) => fs[a] - fs[b]);
+                    return ord[Math.floor(ord.length / 2)];
+                }
+                return idxMax;
+            }
+            const melhor = naMesa.reduce((a, b) => (b.f > a.f ? b : a));
+            if (melhor.f < 0) return idxMin; // só há cartas escondidas: qualquer carta ganha
+            if (TIME_ASSENTO[melhor.s] === TIME_ASSENTO[seat]) return idxMin; // parceiro já ganha
+            let escolhida = -1;
+            fs.forEach((f, i) => { if (f > melhor.f && (escolhida < 0 || f < fs[escolhida])) escolhida = i; });
+            return escolhida >= 0 ? escolhida : idxMin;
+        }
+
+        // CPU esconde quando a carta escolhida não muda o resultado (parceiro já ganha ou não dá pra vencer)
+        function cpuEscondeD(seat, idx) {
+            const naMesa = Object.keys(D.mesa).map(s => ({ s: +s, f: forcaMesaD(+s) }));
+            if (naMesa.length === 0) return false;
+            const melhor = naMesa.reduce((a, b) => (b.f > a.f ? b : a));
+            if (melhor.f < 0) return false;
+            const f = forcaD(D.maos[seat][idx]);
+            if (TIME_ASSENTO[melhor.s] === TIME_ASSENTO[seat]) return Math.random() < 0.25;
+            return f <= melhor.f && Math.random() < 0.4;
+        }
+
+        // ----- Truco no 2x2 -----
+        function cpuTalvezPedeD(seat) {
+            const time = TIME_ASSENTO[seat];
+            if (D.ultimoPedido === time || !PROX_VALOR[D.valor]) return false;
+            if (D.placar[time] + D.valor >= 12) return false; // já fecha o jogo no valor atual: pedir não adianta
+            const n = BARALHO_CONFIG[jogo.tipo].valores.length;
+            const fortes = D.maos[seat].map(forcaD).filter(f => f >= 1000 || f >= n - 2).length;
+            const chance = fortes >= 2 ? 0.35 : fortes === 1 ? 0.12 : 0.03;
+            if (Math.random() > chance) return false;
+            D.aguardaResposta = true;
+            const nome = NOMES_AUMENTOS[D.valor].toUpperCase();
+            msgD('🔥 ' + NOME_ASSENTO[seat] + ' pediu ' + nome + '!');
+            if (time === 't1') {
+                // Seu parceiro pediu: já está pedido, quem responde são os adversários
+                renderD();
+                cpuRespondeD();
+            } else {
+                D.pedindo = { novo: PROX_VALOR[D.valor] };
+                mostrarPainelD(NOME_ASSENTO[seat] + ' pediu ' + nome + ' (vale ' + D.pedindo.novo + ')!');
+            }
+            return true;
+        }
+
+        function mostrarPainelD(txt) {
+            document.getElementById('msgAumento').textContent = txt + ' Você aceita?';
+            const prox = PROX_VALOR[D.pedindo.novo];
+            const btn = document.getElementById('btnAumentarDuplas');
+            btn.style.display = prox ? '' : 'none';
+            if (prox) btn.textContent = '⬆️ Pedir ' + prox;
+            document.getElementById('painelRespostaAumento').style.display = 'block';
+            renderD();
+        }
+        function esconderPainelD() {
+            document.getElementById('painelRespostaAumento').style.display = 'none';
+        }
+
+        function responderAumentoDuplas(resp) {
+            if (!D || !D.aguardaResposta || !D.pedindo) return;
+            const novo = D.pedindo.novo;
+            esconderPainelD();
+            D.pedindo = null;
+            if (resp === 'aceitar') {
+                D.valor = novo; D.ultimoPedido = 't2'; D.aguardaResposta = false;
+                msgD('✅ Você aceitou! A mão vale ' + D.valor);
+                renderD();
+                agendarD(proximaJogadaD, 800);
+            } else if (resp === 'correr') {
+                D.aguardaResposta = false;
+                msgD('🏃 Seu time correu!');
+                encerrarMaoD('t2', D.valor);
+            } else {
+                D.valor = novo; D.ultimoPedido = 't1';
+                msgD('⬆️ Você pediu ' + NOMES_AUMENTOS[D.valor].toUpperCase() + '!');
+                renderD();
+                cpuRespondeD();
+            }
+        }
+
+        function pedirAumentoDuplas() {
+            if (!vezHumanoD() || !PROX_VALOR[D.valor] || D.ultimoPedido === 't1') return;
+            D.aguardaResposta = true;
+            msgD('🔥 Você pediu ' + NOMES_AUMENTOS[D.valor].toUpperCase() + '!');
+            renderD();
+            cpuRespondeD();
+        }
+
+        function cpuRespondeD() {
+            const novo = PROX_VALOR[D.valor];
+            const n = BARALHO_CONFIG[jogo.tipo].valores.length;
+            let soma = 0, qtd = 0;
+            [1, 2].forEach(s => D.maos[s].forEach(c => {
+                const f = forcaD(c);
+                soma += f >= 1000 ? 1 : f / (n - 1);
+                qtd++;
+            }));
+            const forca = qtd ? soma / qtd : 0.3;
+            const vencePartida = D.placar.t2 + novo >= 12; // aceitando, uma vitória na mão já fecha o jogo
+            let pCorrer = Math.max(0.05, 0.6 - forca * 0.9) + novo * 0.01;
+            if (vencePartida) pCorrer *= 0.3;
+            const pAumentar = (forca > 0.6 && PROX_VALOR[novo] && !vencePartida) ? 0.25 : 0;
+            const r = Math.random();
+            agendarD(() => {
+                if (D.encerrada) return;
+                if (r < pCorrer) {
+                    D.aguardaResposta = false;
+                    msgD('🏃 Os adversários correram!');
+                    encerrarMaoD('t1', D.valor);
+                } else if (r > 1 - pAumentar) {
+                    D.valor = novo; D.ultimoPedido = 't2';
+                    D.pedindo = { novo: PROX_VALOR[novo] };
+                    const nome = NOMES_AUMENTOS[D.valor].toUpperCase();
+                    msgD('🔥 Os adversários pediram ' + nome + '!');
+                    mostrarPainelD('Os adversários pediram ' + nome + ' (vale ' + D.pedindo.novo + ')!');
+                } else {
+                    D.valor = novo; D.ultimoPedido = 't1'; D.aguardaResposta = false;
+                    msgD('✅ Os adversários aceitaram! A mão vale ' + D.valor);
+                    renderD();
+                    agendarD(proximaJogadaD, 900);
+                }
+            }, 1400);
+        }
+
+        function correrDuplas() {
+            if (!vezHumanoD() || D.valor === 1) return;
+            msgD('🏃 Seu time correu!');
+            encerrarMaoD('t2', D.valor);
+        }
+
+        // ----- Jogada do humano -----
+        function jogarCartaDuplas(escondida) {
+            if (!vezHumanoD()) return;
+            if (D.sel < 0 || !D.maos[3][D.sel]) { msgD('Selecione uma carta!'); return; }
+            const c = D.maos[3].splice(D.sel, 1)[0];
+            D.sel = -1;
+            D.mesa[3] = c;
+            D.esc[3] = escondida === true;
+            D.jogadas++;
+            msgD(D.esc[3] ? '🙈 Você escondeu a carta' : 'Você jogou ' + fmtCarta(c));
+            renderD();
+            agendarD(proximaJogadaD, 800);
+        }
+
+        function esconderCartaDuplas() { jogarCartaDuplas(true); }
+
+        // ----- Resolução -----
+        function resolverRodadaD() {
+            if (D.encerrada) return;
+            const ordem = [0, 1, 2, 3].map(k => ORDEM_DUPLAS[(D.posInicio + k) % 4]);
+            let max = -1;
+            ordem.forEach(s => { max = Math.max(max, forcaMesaD(s)); });
+            const topo = ordem.filter(s => forcaMesaD(s) === max);
+            const times = new Set(topo.map(s => TIME_ASSENTO[s]));
+            let res, proxPos;
+            if (times.size > 1) {
+                res = 'E'; proxPos = D.posInicio;
+                msgD('Rodada ' + D.rodada + ': empatou!');
+            } else {
+                res = [...times][0];
+                proxPos = ORDEM_DUPLAS.indexOf(topo[0]);
+                msgD('Rodada ' + D.rodada + ': ' + (res === 't1' ? 'seu time' : 'os adversários') +
+                     ' ganhou com ' + fmtCarta(D.mesa[topo[0]]) + ' (' + NOME_ASSENTO[topo[0]] + ')');
+            }
+
+            let vencedor = null;
+            if (D.rodada === 1) {
+                D.r1 = res;
+            } else if (D.rodada === 2) {
+                if (D.r1 !== 'E' && res === D.r1) vencedor = res;
+                else if (D.r1 === 'E' && res !== 'E') vencedor = res;
+                else if (D.r1 !== 'E' && res === 'E') vencedor = D.r1;
+            } else {
+                vencedor = res !== 'E' ? res : (D.r1 !== 'E' ? D.r1 : D.timeInicio);
+            }
+
+            if (vencedor) {
+                agendarD(() => encerrarMaoD(vencedor, D.valor), 1700);
+            } else {
+                D.rodada++;
+                D.posInicio = proxPos;
+                agendarD(iniciarRodadaDuplas, 1700);
+            }
+        }
+
+        function encerrarMaoD(time, pontos) {
+            D.encerrada = true;
+            D.aguardaResposta = false;
+            esconderPainelD();
+            D.placar[time] += pontos;
+            msgD((time === 't1' ? '🎉 Seu time ganhou ' : '😞 Os adversários ganharam ') + pontos + ' ponto' + (pontos > 1 ? 's' : '') + '!');
+            renderD();
+            if (D.placar[time] >= 12) agendarD(() => finalizarPartidaDuplas(time), 2000);
+            else agendarD(iniciarMaoDuplas, 2300);
+        }
+
+        function finalizarPartidaDuplas(time) {
+            if (time === 't1') {
+                jogo.saldo += jogo.aposta * 2;
+                msgD('🎉🎉 SEU TIME VENCEU! +' + (jogo.aposta * 2) + ' fichas 🎉🎉');
+            } else {
+                msgD('😞 Fim do jogo: os adversários venceram.');
+            }
+            salvarSaldo();
+            agendarD(voltarAoSeletor, 2800);
+        }
+
+        function voltarAoSeletor() {
+            sessaoD++;
+            D = null;
+            document.getElementById('telaAposta').style.display = 'block';
+            document.getElementById('telaJogo').style.display = 'none';
+            document.getElementById('telaJogoDuplas').style.display = 'none';
+            esconderPainelD();
+        }
+
+        // ----- Render -----
+        function renderD() {
+            if (!D) return;
+            document.getElementById('placarT1').textContent = D.placar.t1;
+            document.getElementById('placarT2').textContent = D.placar.t2;
+            const elV = document.getElementById('cartaViraDuplas');
+            elV.textContent = fmtCarta(D.vira);
+            elV.className = 'd-vira-carta ' + corCarta(D.vira);
+            document.getElementById('valorMaoDuplas').textContent = D.valor;
+            document.getElementById('rodadaDuplas').textContent = Math.min(D.rodada, 3) + '/3';
+
+            const vez = (!D.encerrada && D.jogadas < 4) ? assentoDaVezD() : -1;
+            const caixas = { 0: 'caixaTopo', 1: 'caixaEsq', 2: 'caixaDir', 3: 'caixaInf' };
+            const maos = { 0: 'cartasTopo', 1: 'cartasEsq', 2: 'cartasDir' };
+            const mesas = { 0: 'mesaTopo', 1: 'mesaEsq', 2: 'mesaDir', 3: 'mesaInf' };
+            for (let s = 0; s < 4; s++) {
+                document.getElementById(caixas[s]).classList.toggle('ativa', s === vez);
+                if (s < 3) document.getElementById(maos[s]).innerHTML = '<span class="verso mini"></span>'.repeat(D.maos[s].length);
+                const el = document.getElementById(mesas[s]);
+                const c = D.mesa[s];
+                const esc = c && D.esc[s];
+                el.textContent = esc ? '' : (c ? fmtCarta(c) : '—');
+                el.className = 'd-carta ' + (esc ? 'verso' : (c ? corCarta(c) : 'vazia'));
+            }
+
+            const meuTurno = vezHumanoD();
+            if (meuTurno && D.maos[3].length === 1) D.sel = 0;
+            document.getElementById('cartasInf').innerHTML = D.maos[3].map((c, i) =>
+                `<button class="carta-player ${corCarta(c)} ${i === D.sel ? 'selecionada' : ''}" ${meuTurno ? '' : 'disabled'} onclick="D.sel=${i}; renderD();">${fmtCarta(c)}</button>`
+            ).join('');
+
+            document.getElementById('btnJogarDuplas').disabled = !meuTurno;
+            document.getElementById('btnEsconderDuplas').disabled = !meuTurno;
+            const prox = PROX_VALOR[D.valor];
+            const btn = document.getElementById('btnAumentoDuplas');
+            btn.textContent = prox ? ({ 3: 'Truco (3)', 6: 'Seis (6)', 9: 'Nove (9)', 12: 'Doze (12)' })[prox] : 'Truco';
+            btn.disabled = !meuTurno || !prox || D.ultimoPedido === 't1';
+            document.getElementById('btnCorrerDuplas').disabled = !meuTurno || D.valor === 1;
+        }
+
+        function atualizar() {
+            document.getElementById('pontoJogador').textContent = jogo.ptJ;
+            document.getElementById('pontoCPU').textContent = jogo.ptC;
+            document.getElementById('valorMao').textContent = jogo.valorMao;
+            document.getElementById('rodada').textContent = jogo.rodada + '/3';
+            
+            document.getElementById('cartaViraIndividual').textContent = jogo.vira.v + jogo.vira.n;
+            
+            if (!jogo.cartaJogadorJogada && !jogo.emAumento && (jogo.turmoDaRodada === 'jogador' || jogo.cartaCPUJogada)) {
+                document.getElementById('turnoInfo').textContent = '👤 SUA VEZ! Selecione uma carta';
+                document.getElementById('turnoInfo').style.background = 'rgba(0, 255, 0, 0.2)';
+                document.getElementById('turnoInfo').style.borderColor = '#00ff00';
+                document.getElementById('turnoInfo').style.color = '#00ff00';
+            } else if (jogo.turmoDaRodada === 'cpu' && !jogo.cartaCPUJogada) {
+                document.getElementById('turnoInfo').textContent = '🤖 CPU está pensando...';
+                document.getElementById('turnoInfo').style.background = 'rgba(255, 152, 0, 0.2)';
+                document.getElementById('turnoInfo').style.borderColor = '#ff9800';
+                document.getElementById('turnoInfo').style.color = '#ffb74d';
+            }
+            
+            if (jogo.cartaJogadorJogada && jogo.cartaJogadorEscondida) {
+                document.getElementById('cartaJogador').textContent = '';
+                document.getElementById('cartaJogador').className = 'carta-display verso';
+            } else if (jogo.cartaJogadorJogada) {
+                const c = jogo.cartaJogadorNamesaRodada;
+                const cor = (c.n === '♥' || c.n === '♦') ? 'vermelha' : '';
+                document.getElementById('cartaJogador').textContent = c.v + c.n;
+                document.getElementById('cartaJogador').className = 'carta-display ' + cor;
+            } else {
+                document.getElementById('cartaJogador').textContent = '?';
+                document.getElementById('cartaJogador').className = 'carta-display vazia';
+            }
+            
+            if (jogo.cartaCPUJogada && jogo.cartaCPUEscondida) {
+                document.getElementById('cartaCPU').textContent = '';
+                document.getElementById('cartaCPU').className = 'carta-display verso';
+            } else if (jogo.cartaCPUJogada) {
+                const c = jogo.cartaCPUNamesaRodada;
+                const cor = (c.n === '♥' || c.n === '♦') ? 'vermelha' : '';
+                document.getElementById('cartaCPU').textContent = c.v + c.n;
+                document.getElementById('cartaCPU').className = 'carta-display ' + cor;
+            } else {
+                document.getElementById('cartaCPU').textContent = '?';
+                document.getElementById('cartaCPU').className = 'carta-display vazia';
+            }
+            
+            document.getElementById('versoCPU').innerHTML = '<span class="verso mini"></span>'.repeat(jogo.cartasC.length);
+            const html = jogo.cartasJ.map((c, i) => {
+                const cor2 = (c.n === '♥' || c.n === '♦') ? 'vermelha' : '';
+                const disabled = jogo.cartaJogadorJogada || jogo.emAumento ? 'disabled' : '';
+                return `<button class="carta-player ${cor2} ${i === jogo.selecionada ? 'selecionada' : ''}" ${disabled} onclick="jogo.selecionada=${i}; atualizar();">${c.v}${c.n}</button>`;
+            }).join('');
+            document.getElementById('cartasPlayer').innerHTML = html;
+            
+            document.getElementById('cpuCartas').textContent = `CPU: ${jogo.cartasC.length} cartas`;
+            
+            // Botões
+            const proximoAumento = AUMENTOS[jogo.valorMao];
+            let nomeBtn = 'Truco';
+            if (jogo.valorMao === 3) nomeBtn = '6';
+            else if (jogo.valorMao === 6) nomeBtn = '9';
+            else if (jogo.valorMao === 9) nomeBtn = '12';
+            
+            document.getElementById('btnAumento').textContent = nomeBtn;
+            document.getElementById('btnAumento').disabled = jogo.cartaJogadorJogada || jogo.emAumento || !proximoAumento || jogo.quemPediuUltimo === 'jogador';
+            document.getElementById('btnCorrer').disabled = jogo.valorMao === 1 || jogo.cartaJogadorJogada || jogo.emAumento;
+            document.getElementById('btnEsconder').disabled = jogo.cartaJogadorJogada || jogo.emAumento;
+        }
+
+        function jogarCartaSelecionada(escondida) {
+            if (jogo.cartaJogadorJogada || jogo.emAumento) return;
+            if (jogo.selecionada < 0) {
+                document.getElementById('msg').textContent = 'Selecione uma carta!';
+                return;
+            }
+            
+            const cJ = jogo.cartasJ[jogo.selecionada];
+            jogo.cartasJ.splice(jogo.selecionada, 1);
+            jogo.cartaJogadorNamesaRodada = cJ;
+            jogo.cartaJogadorJogada = true;
+            jogo.cartaJogadorEscondida = escondida === true;
+            jogo.selecionada = -1;
+            document.getElementById('msg').textContent = jogo.cartaJogadorEscondida ? '🙈 Você escondeu a carta!' : '';
+            
+            atualizar();
+            
+            if (!jogo.cartaCPUJogada) {
+                jogo.turmoDaRodada = 'cpu';
+                setTimeout(() => jogoCPU(), 600);
+            } else {
+                setTimeout(() => resolverRodada(), 800);
+            }
+        }
+
+        function esconderCartaSelecionada() {
+            jogarCartaSelecionada(true);
+        }
+
+        function jogoCPU() {
+            if (jogo.cartaCPUJogada) return;
+            
+            let cC;
+            if (jogo.cartaJogadorJogada && jogo.cartaJogadorEscondida) {
+                // Carta escondida não vale nada: a CPU ganha com a mais fraca
+                cC = jogo.cartasC.reduce((a, b) => (forcaCarta(b) < forcaCarta(a) ? b : a));
+            } else if (jogo.cartaJogadorJogada) {
+                const fJ = forcaCarta(jogo.cartaJogadorNamesaRodada);
+                let cartaVencedora = null;
+                for (let c of jogo.cartasC) {
+                    if (forcaCarta(c) > fJ) {
+                        if (!cartaVencedora || forcaCarta(c) < forcaCarta(cartaVencedora)) {
+                            cartaVencedora = c;
+                        }
+                    }
+                }
+                cC = cartaVencedora || jogo.cartasC.reduce((a, b) => (forcaCarta(b) < forcaCarta(a) ? b : a));
+                if (!cartaVencedora && Math.random() < 0.4) jogo.cartaCPUEscondida = true;
+            } else {
+                cC = jogo.cartasC[Math.floor(Math.random() * jogo.cartasC.length)];
+            }
+            
+            const idx = jogo.cartasC.indexOf(cC);
+            jogo.cartasC.splice(idx, 1);
+            jogo.cartaCPUNamesaRodada = cC;
+            jogo.cartaCPUJogada = true;
+            if (jogo.cartaCPUEscondida) document.getElementById('msg').textContent = '🙈 A CPU escondeu a carta!';
+            
+            atualizar();
+            if (jogo.cartaJogadorJogada) setTimeout(() => resolverRodada(), 800);
+        }
+
+        function resolverRodada() {
+            const fJ = jogo.cartaJogadorEscondida ? -1 : forcaCarta(jogo.cartaJogadorNamesaRodada);
+            const fC = jogo.cartaCPUEscondida ? -1 : forcaCarta(jogo.cartaCPUNamesaRodada);
+            
+            let msg = '';
+            
+            if (fJ > fC) {
+                jogo.rodadasJ++;
+                msg = '✓ Você venceu esta rodada!';
+                jogo.quemJogaPrimeiro = 'jogador';
+                if (jogo.rodada === 1) jogo.vencedorRodada1 = 'jogador';
+            } else if (fC > fJ) {
+                jogo.rodadasC++;
+                msg = '✗ CPU venceu esta rodada';
+                jogo.quemJogaPrimeiro = 'cpu';
+                if (jogo.rodada === 1) jogo.vencedorRodada1 = 'cpu';
+            } else {
+                msg = '◇ Melou! Próxima rodada juntos';
+                // Em empate, define aleatoriamente quem joga primeiro
+                jogo.quemJogaPrimeiro = Math.random() > 0.5 ? 'jogador' : 'cpu';
+            }
+            
+            if (jogo.cartaJogadorEscondida) msg = '🙈 Você escondeu a carta: a CPU leva a rodada';
+            else if (jogo.cartaCPUEscondida) msg = '🙈 A CPU escondeu a carta: você leva a rodada!';
+            const div = document.getElementById('resultadoRodada');
+            div.textContent = msg;
+            
+            // Determina classe baseado no resultado dessa rodada
+            let classeRodada = 'empate';
+            if (fJ > fC) classeRodada = 'vitoria';
+            else if (fC > fJ) classeRodada = 'derrota';
+            
+            div.className = 'resultado-rodada ' + classeRodada;
+            div.style.display = 'block';
+            
+            jogo.rodada++;
+            
+            setTimeout(() => {
+                // Verifica se alguém já ganhou 2 rodadas
+                if (jogo.rodadasJ >= 2) {
+                    finalizarMao('jogador');
+                } else if (jogo.rodadasC >= 2) {
+                    finalizarMao('cpu');
+                } else if (jogo.rodada === 4) {
+                    // Terceira rodada - decide o vencedor
+                    if (jogo.rodadasJ > jogo.rodadasC) {
+                        finalizarMao('jogador');
+                    } else if (jogo.rodadasC > jogo.rodadasJ) {
+                        finalizarMao('cpu');
+                    } else {
+                        // Empate perfeito - ganha quem venceu a primeira rodada
+                        const vencedor = jogo.vencedorRodada1 || (Math.random() > 0.5 ? 'jogador' : 'cpu');
+                        finalizarMao(vencedor);
+                    }
+                } else {
+                    iniciarRodada();
+                }
+            }, 1000);
+        }
+
+        function pedirAumento() {
+            if (jogo.emAumento || jogo.cartaJogadorJogada) return;
+            
+            // Não pode pedir se foi o último a pedir
+            if (jogo.quemPediuUltimo === 'jogador') {
+                document.getElementById('msg').textContent = 'Aguarde a resposta da CPU!';
+                return;
+            }
+            
+            jogo.ultimoAumento = jogo.valorMao;
+            const novoValor = AUMENTOS[jogo.valorMao];
+            jogo.valorMao = novoValor;
+            jogo.emAumento = true;
+            jogo.quemPediuUltimo = 'jogador';
+            
+            const nomePedido = NOMES_AUMENTOS[jogo.ultimoAumento];
+            document.getElementById('msg').textContent = 'Você pediu ' + nomePedido + '!';
+            
+            setTimeout(() => {
+                const forcaCPU = forcaMediaCPU();
+                // Só faz sentido aumentar se vencer a mão no valor atual ainda não encerra o jogo
+                const vencePartida = jogo.ptC + jogo.valorMao >= 12;
+                const prosseguePedindo = forcaCPU > 0.7 && Math.random() < 0.5 && !vencePartida;
+                
+                if (forcaCPU < (vencePartida ? 0.2 : 0.4) && Math.random() > 0.4) {
+                    // CPU corre
+                    jogo.ptJ += jogo.ultimoAumento;
+                    document.getElementById('msg').textContent = '🏃 CPU correu! +' + jogo.ultimoAumento;
+                    jogo.emAumento = false;
+                    
+                    setTimeout(() => {
+                        if (jogo.ptJ >= 12) {
+                            finalizarPartida('jogador');
+                        } else {
+                            iniciarMao();
+                        }
+                    }, 800);
+                } else if (prosseguePedindo && AUMENTOS[jogo.valorMao]) {
+                    // CPU pede aumento
+                    jogo.ultimoAumento = jogo.valorMao;
+                    const proximoValor = AUMENTOS[jogo.valorMao];
+                    jogo.valorMao = proximoValor;
+                    jogo.quemPediuUltimo = 'cpu';
+                    
+                    const nomeProximo = NOMES_AUMENTOS[jogo.ultimoAumento];
+                    
+                    document.getElementById('modalTitulo').textContent = 'CPU pediu ' + nomeProximo + '!';
+                    document.getElementById('modalMensagem').textContent = 'Você aceita?';
+                    
+                    const botaoAumentar = document.getElementById('btnAumentarResposta');
+                    if (AUMENTOS[jogo.valorMao]) {
+                        botaoAumentar.textContent = '↑ Pedir ' + NOMES_AUMENTOS[jogo.valorMao];
+                        botaoAumentar.style.display = 'block';
+                    } else {
+                        botaoAumentar.style.display = 'none';
+                    }
+                    
+                    document.getElementById('modalAumento').style.display = 'block';
+                } else {
+                    // CPU aceita
+                    document.getElementById('msg').textContent = '✓ CPU aceitou!';
+                    jogo.emAumento = false;
+                    atualizar();
+                }
+            }, 500);
+        }
+
+        function responderAumento(resposta) {
+            document.getElementById('modalAumento').style.display = 'none';
+            
+            if (resposta === 'correr') {
+                jogo.ptC += jogo.ultimoAumento;
+                document.getElementById('msg').textContent = 'Você correu! CPU ganha ' + jogo.ultimoAumento;
+                
+                setTimeout(() => {
+                    if (jogo.ptC >= 12) {
+                        finalizarPartida('cpu');
+                    } else {
+                        iniciarMao();
+                    }
+                }, 800);
+            } else if (resposta === 'aumentar' && AUMENTOS[jogo.valorMao]) {
+                jogo.ultimoAumento = jogo.valorMao;
+                const proximoValor = AUMENTOS[jogo.valorMao];
+                jogo.valorMao = proximoValor;
+                jogo.quemPediuUltimo = 'jogador';
+                
+                const nomeAumento = NOMES_AUMENTOS[jogo.ultimoAumento];
+                document.getElementById('msg').textContent = 'Você pediu ' + nomeAumento + '!';
+                
+                setTimeout(() => {
+                    const forcaCPU = forcaMediaCPU();
+                    
+                    if (forcaCPU < 0.25 && Math.random() > 0.3) {
+                        jogo.ptJ += jogo.ultimoAumento;
+                        document.getElementById('msg').textContent = '🏃 CPU correu! +' + jogo.ultimoAumento;
+                        
+                        setTimeout(() => {
+                            if (jogo.ptJ >= 12) {
+                                finalizarPartida('jogador');
+                            } else {
+                                iniciarMao();
+                            }
+                        }, 800);
+                    } else {
+                        document.getElementById('msg').textContent = '✓ CPU aceitou!';
+                    }
+                }, 400);
+            } else {
+                document.getElementById('msg').textContent = '✓ CPU aceitou!';
+            }
+            
+            jogo.emAumento = false;
+            atualizar();
+        }
+
+        function correr() {
+            jogo.ptC += jogo.ultimoAumento || 1;
+            document.getElementById('msg').textContent = 'Você correu! CPU ganha ' + (jogo.ultimoAumento || 1);
+            
+            setTimeout(() => {
+                if (jogo.ptC >= 12) {
+                    finalizarPartida('cpu');
+                } else {
+                    iniciarMao();
+                }
+            }, 800);
+        }
+
+        function finalizarMao(vencedor) {
+            if (vencedor === 'jogador') {
+                jogo.ptJ += jogo.valorMao;
+                document.getElementById('resultadoRodada').textContent = '🎉 Você venceu a mão!';
+                document.getElementById('resultadoRodada').className = 'resultado-rodada vitoria';
+            } else {
+                jogo.ptC += jogo.valorMao;
+                document.getElementById('resultadoRodada').textContent = '😞 CPU venceu a mão';
+                document.getElementById('resultadoRodada').className = 'resultado-rodada derrota';
+            }
+            
+            document.getElementById('msg').textContent = '';
+            atualizar();
+            
+            setTimeout(() => {
+                if (jogo.ptJ >= 12) {
+                    finalizarPartida('jogador');
+                } else if (jogo.ptC >= 12) {
+                    finalizarPartida('cpu');
+                } else {
+                    document.getElementById('resultadoRodada').style.display = 'none';
+                    iniciarMao();
+                }
+            }, 1200);
+        }
+
+        function finalizarPartida(vencedor) {
+            if (vencedor === 'jogador') {
+                jogo.saldo += jogo.aposta * 2;
+                document.getElementById('resultadoRodada').textContent = '🎉🎉 VOCÊ VENCEU! 🎉🎉';
+                document.getElementById('resultadoRodada').className = 'resultado-rodada vitoria';
+            } else {
+                document.getElementById('resultadoRodada').textContent = '😞 Fim do jogo!';
+                document.getElementById('resultadoRodada').className = 'resultado-rodada derrota';
+            }
+            
+            salvarSaldo();
+            document.getElementById('btnJogar').disabled = true;
+            document.getElementById('btnEsconder').disabled = true;
+            document.getElementById('btnAumento').disabled = true;
+            document.getElementById('btnCorrer').disabled = true;
+            
+            setTimeout(() => window.history.back(), 2000);
+        }
+
+        function voltarLobby() {
+            window.history.back();
+        }
+
+        salvarSaldo();
+    </script>
+    
+    <div id="telaJogoDuplas" style="display:none; padding: 14px; max-width: 700px; margin: 0 auto;">
+        <div class="d-placar">
+            <div class="d-time d-t1">
+                <div class="d-time-nome">TIME 1</div>
+                <div class="d-time-sub">Você + Louxas</div>
+                <div class="d-time-pts" id="placarT1">0</div>
+                <div class="d-time-meta">de 12</div>
+            </div>
+            <div class="d-vira">
+                <div class="d-vira-label">VIRA</div>
+                <div class="d-vira-carta" id="cartaViraDuplas">-</div>
+            </div>
+            <div class="d-time d-t2">
+                <div class="d-time-nome">TIME 2</div>
+                <div class="d-time-sub">Shifu + Dunha</div>
+                <div class="d-time-pts" id="placarT2">0</div>
+                <div class="d-time-meta">de 12</div>
+            </div>
+        </div>
+        <div class="d-chips">
+            <div class="d-chip"><span>💰 Mão vale</span><b id="valorMaoDuplas">1</b></div>
+            <div class="d-chip"><span>🎯 Rodada</span><b id="rodadaDuplas">1/3</b></div>
+        </div>
+        <div id="msgMesa" class="d-msg">Começando...</div>
+
+        <div class="d-mesa">
+            <div class="d-topo"><div id="caixaTopo" class="d-assento"><div class="d-nome">⬆️ Louxas (parceiro)</div><div id="cartasTopo" class="d-contagem"></div></div></div>
+            <div class="d-esq"><div id="caixaEsq" class="d-assento"><div class="d-nome">⬅️ Shifu</div><div id="cartasEsq" class="d-contagem"></div></div></div>
+            <div class="d-centro">
+                <div class="d-cruz">
+                    <div class="d-c-topo"><div id="mesaTopo" class="d-carta vazia">—</div></div>
+                    <div class="d-c-esq"><div id="mesaEsq" class="d-carta vazia">—</div></div>
+                    <div class="d-c-dir"><div id="mesaDir" class="d-carta vazia">—</div></div>
+                    <div class="d-c-inf"><div id="mesaInf" class="d-carta vazia">—</div></div>
+                </div>
+            </div>
+            <div class="d-dir"><div id="caixaDir" class="d-assento"><div class="d-nome">Dunha ➡️</div><div id="cartasDir" class="d-contagem"></div></div></div>
+        </div>
+
+        <div id="caixaInf" class="d-assento d-voce">
+            <div class="d-nome" style="color:#4ecca3;">👤 Você</div>
+            <div id="cartasInf" class="cartas-jogador"></div>
+        </div>
+
+        <div style="text-align: center; margin: 15px 0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button id="btnJogarDuplas" onclick="jogarCartaDuplas()" style="padding: 10px 20px;">🎴 Jogar Carta</button>
+            <button id="btnEsconderDuplas" onclick="esconderCartaDuplas()" style="padding: 10px 20px;" title="Joga a carta virada: só vale a carta do seu parceiro">🙈 Esconder</button>
+            <button class="btn-truco" id="btnAumentoDuplas" onclick="pedirAumentoDuplas()" style="padding: 10px 20px;">Truco (3)</button>
+            <button class="btn-correr" id="btnCorrerDuplas" onclick="correrDuplas()" style="padding: 10px 20px;">Correr</button>
+            <button class="btn-voltar" onclick="voltarAoSeletor()" style="padding: 10px 20px;">← Voltar</button>
+        </div>
+
+        <div id="painelRespostaAumento" style="display:none; text-align: center; margin: 15px 0; padding: 15px; background: rgba(212,175,55,0.1); border: 1px solid #d4af37; border-radius: 6px;">
+            <div id="msgAumento" style="color: #d4af37; margin-bottom: 12px; font-weight: bold;"></div>
+            <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                <button class="aposta-btn" onclick="responderAumentoDuplas('aceitar')">✅ Aceitar</button>
+                <button class="aposta-btn" id="btnAumentarDuplas" onclick="responderAumentoDuplas('aumentar')">⬆️ Aumentar</button>
+                <button class="btn-correr" onclick="responderAumentoDuplas('correr')" style="padding: 12px 20px;">🏃 Correr</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="musica" loop preload="auto" src="musica.m4a"></audio>
+    <button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
+
+    <script>
+        (function () {
+            const musica = document.getElementById('musica');
+            const btn = document.getElementById('musicaBtn');
+            const CH_MUDO = 'casinoMusicaMutada', CH_POS = 'casinoMusicaPos';
+            const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+            const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+            let mutada = ler(CH_MUDO) === '1';
+
+            function atualizar() {
+                const tocando = !musica.paused;
+                btn.textContent = tocando ? '🔊' : '🔇';
+                btn.classList.toggle('tocando', tocando);
+            }
+            function tocar() { return musica.play().then(atualizar).catch(atualizar); }
+
+            window.alternarMusica = function () {
+                if (musica.paused) { mutada = false; gravar(CH_MUDO, '0'); tocar(); }
+                else { mutada = true; gravar(CH_MUDO, '1'); musica.pause(); atualizar(); }
+            };
+
+            musica.volume = 0.6;
+            const pos = parseFloat(ler(CH_POS));
+            if (pos > 0) musica.addEventListener('loadedmetadata', () => { try { musica.currentTime = pos; } catch (e) {} }, { once: true });
+            let ult = 0;
+            musica.addEventListener('timeupdate', () => { const t = Date.now(); if (t - ult > 1000) { ult = t; gravar(CH_POS, musica.currentTime); } });
+            window.addEventListener('pagehide', () => gravar(CH_POS, musica.currentTime));
+
+            if (!mutada) {
+                musica.play().then(atualizar).catch(() => {
+                    const iniciar = () => {
+                        if (!mutada && musica.paused) tocar();
+                        document.removeEventListener('pointerdown', iniciar);
+                    };
+                    document.addEventListener('pointerdown', iniciar);
+                });
+            }
+            atualizar();
+        })();
+    </script>
+</body>
+</html>
