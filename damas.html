@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cassino do Sifu - Damas</title>
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:Georgia,serif;background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 100%);color:#e0e0e0;min-height:100vh;padding:20px}
+.container{max-width:700px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px}
+h1{color:#d4af37;text-shadow:2px 2px 4px rgba(0,0,0,.5)}
+h3{color:#d4af37;margin:14px 0 8px}
+.btn-voltar{background:#4ecdc4;color:#fff;border:none;padding:10px 18px;border-radius:5px;font-weight:bold;text-decoration:none}
+.info{display:flex;gap:12px;justify-content:center;margin-bottom:16px}
+.info-item{background:rgba(212,175,55,.2);border:2px solid #d4af37;padding:10px 22px;border-radius:8px;text-align:center}
+.info-label{color:#d4af37;font-weight:bold;font-size:.85rem}
+.info-value{color:#0f0;font-size:1.6rem;font-weight:bold}
+.painel{background:rgba(0,0,0,.3);border:2px solid #d4af37;border-radius:10px;padding:18px;text-align:center}
+.regras{color:#b8a86b;font-size:.9rem;margin-bottom:6px}
+.linha{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button{font-family:inherit}
+.opt{background:rgba(212,175,55,.15);color:#d4af37;border:2px solid #d4af37;border-radius:8px;padding:10px 16px;font-weight:bold;font-size:1rem;cursor:pointer}
+.opt.sel{background:#d4af37;color:#1a1a2e}
+input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;border:2px solid #d4af37;background:#111;color:#fff;font-size:1rem;text-align:center}
+.pay{color:#b8a86b;font-size:.9rem;margin-top:8px;min-height:20px}
+.grande{margin-top:14px;background:#d4af37;color:#1a1a2e;border:none;border-radius:8px;padding:14px 28px;font-size:1.1rem;font-weight:bold;cursor:pointer}
+.mesa{background:linear-gradient(135deg,#0d5f2d 0%,#1a3a2e 100%);border:6px solid #d4af37;border-radius:15px;padding:14px}
+.ops{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.op{flex:1;min-width:120px;max-width:200px;background:rgba(0,0,0,.35);border:2px solid #555;border-radius:8px;padding:8px;text-align:center}
+.op.vez{border-color:#4ecca3;box-shadow:0 0 12px rgba(78,204,163,.6)}
+.op.fora{opacity:.5}
+.nome{color:#d4af37;font-weight:bold;font-size:.9rem;margin-bottom:4px}
+.qtd{color:#ccc;font-size:.8rem;margin-top:3px}
+.log{background:rgba(0,0,0,.4);border-radius:8px;padding:8px 10px;min-height:76px;color:#d4af37;font-size:.9rem;margin-bottom:12px}
+.log div:last-child{font-weight:bold;color:#fff}
+.area{background:rgba(0,0,0,.3);border:2px solid #d4af37;border-radius:10px;padding:10px;margin-bottom:12px;text-align:center}
+.carta{display:inline-flex;align-items:center;justify-content:center;width:54px;height:76px;background:#fff;color:#111;border:2px solid #333;border-radius:6px;font-weight:bold;margin:3px;box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.carta.v{color:#d32f2f}
+.verso{background-color:#0f3460!important;background-image:repeating-linear-gradient(45deg,rgba(212,175,55,.55) 0 2px,transparent 2px 9px),repeating-linear-gradient(-45deg,rgba(212,175,55,.55) 0 2px,transparent 2px 9px)!important;border:3px solid #fff!important;box-shadow:inset 0 0 0 3px #0f3460,inset 0 0 0 5px #d4af37,0 4px 8px rgba(0,0,0,.5)!important;color:transparent!important;font-size:0!important}
+.verso.mini{display:inline-block;width:20px;height:30px;border-width:2px!important;border-radius:4px;margin:0 1px;vertical-align:middle;box-shadow:inset 0 0 0 2px #0f3460,inset 0 0 0 3px #d4af37!important}
+.pick{width:46px;height:64px;border-radius:6px;cursor:pointer;margin:3px;padding:0;transition:transform .15s}
+.pick:hover{transform:translateY(-6px)}
+.anim{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:800;pointer-events:none;text-align:center;display:none}
+.anim .carta{width:92px;height:128px;font-size:1.7rem;margin:0 auto;border-color:#ffd700;box-shadow:0 0 28px rgba(255,215,0,.9);animation:pop 1.3s ease forwards}
+.anim .leg{margin-top:10px;color:#ffd700;font-weight:bold;text-shadow:0 2px 6px #000;animation:pop 1.3s ease forwards}
+@keyframes pop{0%{transform:scale(.3) rotate(-15deg);opacity:0}20%{transform:scale(1.15) rotate(0);opacity:1}35%{transform:scale(1)}80%{opacity:1}100%{transform:scale(1) translateY(50px);opacity:0}}
+.carta.nova{border-color:#ffd700;box-shadow:0 0 14px #ffd700;animation:brilha .8s ease 3}
+@keyframes brilha{50%{transform:translateY(-8px)}}
+#fimPainel{text-align:center;margin-top:12px}
+#fimTxt{font-size:1.2rem;font-weight:bold;color:#d4af37;margin-bottom:8px}
+        .musica-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            background: rgba(15, 52, 96, 0.9);
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 900;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .musica-btn.tocando { animation: glow-btn 1.5s ease-in-out infinite; }
+        @keyframes glow-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 24px rgba(212, 175, 55, 1); }
+        }
+
+
+.status{text-align:center;color:#d4af37;font-weight:bold;min-height:26px;margin:4px 0}
+.tabw{max-width:480px;margin:6px auto}
+.tabw svg{width:100%;height:auto;display:block;border-radius:8px;border:4px solid #d4af37}
+.ck{pointer-events:none}
+.cs{cursor:pointer}
+.pips{display:flex;justify-content:space-between;color:#b8a86b;font-size:.85rem;max-width:480px;margin:0 auto}
+</style>
+</head>
+<body>
+<div class="container">
+ <div class="header"><h1>♟️ DAMAS</h1><a class="btn-voltar" href="index.html" target="_self">← Voltar</a></div>
+ <div class="info">
+  <div class="info-item"><div class="info-label">💰 SALDO</div><div class="info-value" id="saldo">1000</div></div>
+  <div class="info-item"><div class="info-label">🎯 APOSTA</div><div class="info-value" id="apostaTxt">0</div></div>
+ </div>
+ <div class="painel" id="setup">
+  <div class="regras">Damas brasileiras (8x8). As peças andam na diagonal para frente e <b>capturam para frente e para trás</b>. A captura é <b>obrigatória</b> e você deve escolher a sequência que captura <b>mais peças</b>. Quem chega à última fila vira dama, que anda e captura a qualquer distância na diagonal. Perde quem ficar sem peças ou sem jogadas. Empate após 20 lances de cada lado só com damas e sem capturas. As brancas começam; você escolhe a cor (ou deixa sortear). Você joga sempre embaixo.</div>
+  <h3>Sua cor</h3>
+  <div class="linha" id="corBtns"><button class="opt" data-c="b" onclick="setCor('b')">⚪ Brancas</button><button class="opt" data-c="p" onclick="setCor('p')">⚫ Pretas</button><button class="opt sel" data-c="s" onclick="setCor('s')">🎲 Sorteio</button></div>
+  <h3>Dificuldade</h3>
+  <div class="linha" id="nvBtns">
+   <button class="opt" data-n="1" onclick="setNivel(1)">Fácil</button>
+   <button class="opt sel" data-n="2" onclick="setNivel(2)">Médio</button>
+   <button class="opt" data-n="3" onclick="setNivel(3)">Difícil</button>
+  </div>
+  <h3>Sua aposta</h3>
+  <div class="linha">
+   <button class="opt" onclick="chip(10)">10</button><button class="opt" onclick="chip(50)">50</button>
+   <button class="opt" onclick="chip(100)">100</button><button class="opt" onclick="chip(500)">500</button>
+   <button class="opt" onclick="chip(J.saldo)">Tudo</button>
+  </div>
+  <input type="number" id="apCustom" placeholder="Ou digite o valor" min="1" oninput="info()">
+  <div class="pay" id="payInfo"></div>
+  <button class="grande" onclick="comecar()">♟️ Começar</button>
+ </div>
+ <div id="jogo" style="display:none">
+  <div class="pips" id="pips"></div>
+  <div class="status" id="status"></div>
+  <div class="tabw" id="tab"></div>
+  <div id="fimPainel" class="painel" style="display:none"><div id="fimTxt"></div><button class="grande" onclick="voltarSetup()">🔄 Jogar de novo</button></div>
+ </div>
+</div>
+<script>
+const MULT={1:0.5,2:1,3:2},PROF={1:2,2:4,3:8};
+const J={saldo:1000,aposta:0,nivel:2,cor:'s'};let G=null,RAPIDO=false;
+const $=id=>document.getElementById(id);
+const esp=(f,ms)=>setTimeout(f,RAPIDO?0:ms);
+function lerSaldo(){try{const v=parseInt(localStorage.getItem('casinoSaldo'));if(!isNaN(v))J.saldo=v;}catch(e){}}
+function salvar(){try{localStorage.setItem('casinoSaldo',String(J.saldo));}catch(e){}}
+function setCor(c){J.cor=c;document.querySelectorAll('#corBtns button').forEach(b=>b.classList.toggle('sel',b.dataset.c===c));}
+function setNivel(n){J.nivel=n;document.querySelectorAll('#nvBtns button').forEach(b=>b.classList.toggle('sel',+b.dataset.n===n));info();}
+function chip(v){$('apCustom').value=v;info();}
+function info(){const v=parseInt($('apCustom').value)||0;$('payInfo').textContent=v>0?'Vitória: +'+Math.round(v*MULT[J.nivel])+' fichas • Empate: aposta devolvida • Derrota: −'+v:'Escolha o valor da aposta';$('saldo').textContent=J.saldo;}
+
+// ---------- regras ----------
+// b[r*8+c]: 1 pedra e 2 dama do jogador 0 (embaixo, anda para cima); -1 e -2 do jogador 1 (CPU, anda para baixo).
+const DIRS=[[-1,-1],[-1,1],[1,-1],[1,1]];
+function inicial(){const b=Array(64).fill(0);for(let r=0;r<8;r++)for(let c=0;c<8;c++)if((r+c)%2===1){if(r<3)b[r*8+c]=-1;else if(r>4)b[r*8+c]=1;}return b;}
+const dono=v=>v>0?0:1;
+function capturas(b,p){
+  const sg=p?-1:1,res=[];let max=0;
+  for(let i=0;i<64;i++){
+    if(b[i]*sg<=0)continue;
+    const rei=Math.abs(b[i])===2,r0=i>>3,c0=i&7;
+    const rec=(r,c,capt,path)=>{
+      let achou=false;
+      for(const[dr,dc]of DIRS){
+        let rr=r+dr,cc=c+dc;
+        if(rei){while(rr>=0&&rr<8&&cc>=0&&cc<8&&b[rr*8+cc]===0&&!(rr*8+cc===i&&false)){rr+=dr;cc+=dc;}}
+        if(rr<0||rr>7||cc<0||cc>7)continue;
+        const ei=rr*8+cc,v=b[ei];
+        if(v*sg>=0||capt.includes(ei))continue;      // própria peça ou já capturada: bloqueia
+        let lr=rr+dr,lc=cc+dc;
+        const pous=[];
+        while(lr>=0&&lr<8&&lc>=0&&lc<8&&(b[lr*8+lc]===0)){pous.push(lr*8+lc);if(!rei)break;lr+=dr;lc+=dc;}
+        for(const l of pous){achou=true;rec(l>>3,l&7,capt.concat([ei]),path.concat([l]));}
+      }
+      if(!achou&&capt.length){if(capt.length>max){max=capt.length;res.length=0;}if(capt.length===max)res.push({path,caps:capt});}
+    };
+    const orig=b[i];b[i]=0;rec(r0,c0,[],[i]);b[i]=orig;
+  }
+  return res;
+}
+function simples(b,p){
+  const sg=p?-1:1,fwd=p?1:-1,out=[];
+  for(let i=0;i<64;i++){
+    if(b[i]*sg<=0)continue;
+    const rei=Math.abs(b[i])===2,r=i>>3,c=i&7;
+    for(const[dr,dc]of DIRS){
+      if(!rei&&dr!==fwd)continue;
+      let rr=r+dr,cc=c+dc;
+      while(rr>=0&&rr<8&&cc>=0&&cc<8&&b[rr*8+cc]===0){out.push({path:[i,rr*8+cc],caps:[]});if(!rei)break;rr+=dr;cc+=dc;}
+    }
+  }
+  return out;
+}
+function gerar(b,p){const c=capturas(b,p);return c.length?c:simples(b,p);}
+function aplicar(b,p,m){
+  const n=b.slice(),i=m.path[0],f=m.path[m.path.length-1];let v=n[i];n[i]=0;
+  m.caps.forEach(x=>{n[x]=0;});
+  if(Math.abs(v)===1&&((p===0&&(f>>3)===0)||(p===1&&(f>>3)===7)))v=p?-2:2;
+  n[f]=v;return n;
+}
+function aval(b){ // do ponto de vista do jogador 0
+  let v=0;
+  for(let i=0;i<64;i++){
+    const x=b[i];if(!x)continue;
+    const r=i>>3,c=i&7,sg=x>0?1:-1;
+    if(Math.abs(x)===2)v+=sg*320;
+    else{v+=sg*(100+(x>0?7-r:r)*5);if(c>=2&&c<=5&&r>=2&&r<=5)v+=sg*3;if((x>0&&r===7)||(x<0&&r===0))v+=sg*7;}
+  }
+  return v;
+}
+function negamax(b,p,d,a,bt,ply){
+  const ms=gerar(b,p);
+  if(!ms.length)return-10000+ply;
+  if(d<=0&&(!ms[0].caps.length||d<=-4))return(p?-1:1)*aval(b);
+  let best=-1e9;
+  for(const m of ms){const v=-negamax(aplicar(b,p,m),1-p,d-1,-bt,-a,ply+1);if(v>best)best=v;if(best>a)a=best;if(a>=bt)break;}
+  return best;
+}
+function melhorJogada(b,p,prof){
+  const ms=gerar(b,p);if(ms.length===1)return ms[0];
+  let best=[],bv=-1e9;
+  for(const m of ms){const v=-negamax(aplicar(b,p,m),1-p,prof-1,-1e9,1e9,1)+Math.random()*(prof<=2?40:2);if(v>bv+1e-9){bv=v;best=[m];}else if(Math.abs(v-bv)<=1e-9)best.push(m);}
+  return best[Math.floor(Math.random()*best.length)];
+}
+
+// ---------- fluxo ----------
+function comecar(){
+  const v=parseInt($('apCustom').value);
+  if(!v||v<1){alert('Digite uma aposta válida.');return;}
+  if(v>J.saldo){alert('Saldo insuficiente! Você tem '+J.saldo+' fichas.');return;}
+  J.aposta=v;J.saldo-=v;salvar();$('saldo').textContent=J.saldo;$('apostaTxt').textContent=v;
+  const adv=['Shifu','Louxas','Dunha'][Math.floor(Math.random()*3)],branca=J.cor==='b'?true:J.cor==='p'?false:Math.random()<.5;
+  G={b:inicial(),adv,branca,vez:branca?0:1,legal:[],pref:[],ult:null,semProg:0,fim:false};
+  $('setup').style.display='none';$('jogo').style.display='block';$('fimPainel').style.display='none';
+  turno();
+}
+function msg(t){$('status').textContent=t;}
+function turno(){
+  if(G.fim)return;
+  G.legal=gerar(G.b,G.vez);G.pref=[];
+  if(!G.legal.length){terminar(1-G.vez);return;}
+  desenha();
+  if(G.vez===0)msg((G.legal[0].caps.length?'Captura obrigatória! ':'Sua vez. ')+'Toque numa peça ('+(G.branca?'brancas':'pretas')+').');
+  else{msg(G.adv+' está pensando...');esp(cpuJoga,RAPIDO?0:700);}
+}
+function cpuJoga(){
+  if(G.fim||G.vez!==1)return;
+  const m=melhorJogada(G.b,1,PROF[J.nivel]);
+  executar(m);
+}
+function clicarCasa(i){
+  if(!G||G.fim||G.vez!==0)return;
+  const leg=G.legal,pf=G.pref;
+  if(pf.length){
+    const pre=m=>m.path.slice(0,pf.length).every((q,k)=>q===pf[k]);
+    if(leg.some(m=>pre(m)&&m.path[pf.length]===i)){
+      pf.push(i);
+      const full=leg.find(m=>m.path.length===pf.length&&pre(m));
+      if(full)executar(full);else desenha();
+      return;
+    }
+    if(pf.length===1&&leg.some(m=>m.path[0]===i)){G.pref=[i];desenha();return;}
+    if(pf.length===1){G.pref=[];desenha();}
+    return;
+  }
+  if(leg.some(m=>m.path[0]===i)){G.pref=[i];desenha();}
+}
+function executar(m){
+  const p=G.vez,antes=G.b[m.path[0]];
+  G.b=aplicar(G.b,p,m);G.ult=m;G.pref=[];
+  G.semProg=(m.caps.length||Math.abs(antes)===1)?0:G.semProg+1;
+  if(m.caps.length)msg((p?G.adv:'Você')+' capturou '+m.caps.length+(m.caps.length>1?' peças!':' peça!'));
+  G.vez=1-p;
+  if(G.semProg>=40){G.legal=[];desenha();terminar(-1);return;}
+  esp(turno,RAPIDO?0:(m.caps.length?650:250));desenha();
+}
+function terminar(venc){
+  G.fim=true;G.legal=[];desenha();
+  let t;
+  if(venc===0){const g=Math.round(J.aposta*MULT[J.nivel]);J.saldo+=J.aposta+g;t='🏆 Você venceu '+G.adv+'! +'+g+' fichas';}
+  else if(venc===1)t='😞 '+G.adv+' venceu. −'+J.aposta+' fichas';
+  else{J.saldo+=J.aposta;t='🤝 Empate! Aposta devolvida.';}
+  salvar();msg('');$('saldo').textContent=J.saldo;$('fimTxt').textContent=t;$('fimPainel').style.display='block';
+}
+function voltarSetup(){G=null;$('jogo').style.display='none';$('setup').style.display='block';$('apostaTxt').textContent=0;info();}
+
+// ---------- tela ----------
+function desenha(){
+  const b=G.b,pf=G.pref,leg=G.legal;
+  const cl=['#fafafa','#212121'],bordas=['#9e9e9e','#d4af37'];
+  const meu=G.branca?0:1; // cor visual do jogador 0
+  const cor=p=>p===0?(G.branca?cl[0]:cl[1]):(G.branca?cl[1]:cl[0]);
+  const bor=p=>p===0?(G.branca?bordas[0]:bordas[1]):(G.branca?bordas[1]:bordas[0]);
+  const orig=new Set(pf.length?[pf[0]]:leg.map(m=>m.path[0]));
+  const pre=m=>m.path.slice(0,pf.length).every((q,k)=>q===pf[k]);
+  const dest=new Set(pf.length?leg.filter(pre).map(m=>m.path[pf.length]):[]);
+  const capsAtivas=new Set();if(pf.length)leg.filter(pre).forEach(m=>{});
+  const caidas=new Set();
+  if(pf.length>1){const m0=leg.find(pre);if(m0){for(let k=0;k<pf.length-1;k++){/* peças já "tomadas" nesta sequência */}const done=m0.caps.slice(0,pf.length-1);done.forEach(x=>caidas.add(x));}}
+  let h='<svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const i=r*8+c,esc=(r+c)%2===1;
+    h+='<rect'+(esc?' class="cs" onclick="clicarCasa('+i+')"':'')+' x="'+c+'" y="'+r+'" width="1" height="1" fill="'+(esc?'#8d5a2b':'#f0d9b5')+'"/>';
+    if(esc&&G.ult&&(G.ult.path[0]===i||G.ult.path[G.ult.path.length-1]===i))h+='<rect class="ck" x="'+c+'" y="'+r+'" width="1" height="1" fill="rgba(79,195,247,.35)"/>';
+    if(esc&&pf.length&&pf[pf.length-1]===i)h+='<rect class="ck" x="'+(c+.04)+'" y="'+(r+.04)+'" width=".92" height=".92" fill="none" stroke="#ffd700" stroke-width=".08"/>';
+  }
+  for(let i=0;i<64;i++){
+    const x=b[i];if(!x)continue;
+    const p=dono(x),cx=(i&7)+.5,cy=(i>>3)+.5,sel=orig.has(i)&&G.vez===0&&!G.fim;
+    h+='<g class="ck" opacity="'+(caidas.has(i)?.3:1)+'"><circle cx="'+cx+'" cy="'+(cy+.04)+'" r=".4" fill="rgba(0,0,0,.35)"/><circle cx="'+cx+'" cy="'+cy+'" r=".4" fill="'+cor(p)+'" stroke="'+(sel?'#ffd700':bor(p))+'" stroke-width="'+(sel?.1:.06)+'"/><circle cx="'+cx+'" cy="'+cy+'" r=".26" fill="none" stroke="'+bor(p)+'" stroke-width=".03"/>';
+    if(Math.abs(x)===2)h+='<text x="'+cx+'" y="'+(cy+.17)+'" font-size=".5" text-anchor="middle" fill="'+(p===0?(G.branca?'#c8a200':'#ffd700'):(G.branca?'#ffd700':'#c8a200'))+'">♛</text>';
+    h+='</g>';
+  }
+  dest.forEach(i=>{h+='<circle class="ck" cx="'+((i&7)+.5)+'" cy="'+((i>>3)+.5)+'" r=".17" fill="#ffd700" stroke="#fff" stroke-width=".04"/>';});
+  $('tab').innerHTML=h+'</svg>';
+  const n=(p)=>b.filter(x=>x&&dono(x)===p).length,k=(p)=>b.filter(x=>Math.abs(x)===2&&dono(x)===p).length;
+  $('pips').innerHTML='<span>Você: '+n(0)+' peças'+(k(0)?' ('+k(0)+' damas)':'')+'</span><span>'+G.adv+': '+n(1)+' peças'+(k(1)?' ('+k(1)+' damas)':'')+'</span>';
+}
+lerSaldo();info();
+</script>
+    <audio id="musica" loop preload="auto" src="musica.m4a"></audio>
+    <button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
+
+    <script>
+        (function () {
+            const musica = document.getElementById('musica');
+            const btn = document.getElementById('musicaBtn');
+            const CH_MUDO = 'casinoMusicaMutada', CH_POS = 'casinoMusicaPos';
+            const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+            const gravar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+            let mutada = ler(CH_MUDO) === '1';
+
+            function atualizar() {
+                const tocando = !musica.paused;
+                btn.textContent = tocando ? '🔊' : '🔇';
+                btn.classList.toggle('tocando', tocando);
+            }
+            function tocar() { return musica.play().then(atualizar).catch(atualizar); }
+
+            window.alternarMusica = function () {
+                if (musica.paused) { mutada = false; gravar(CH_MUDO, '0'); tocar(); }
+                else { mutada = true; gravar(CH_MUDO, '1'); musica.pause(); atualizar(); }
+            };
+
+            musica.volume = 0.6;
+            const pos = parseFloat(ler(CH_POS));
+            if (pos > 0) musica.addEventListener('loadedmetadata', () => { try { musica.currentTime = pos; } catch (e) {} }, { once: true });
+            let ult = 0;
+            musica.addEventListener('timeupdate', () => { const t = Date.now(); if (t - ult > 1000) { ult = t; gravar(CH_POS, musica.currentTime); } });
+            window.addEventListener('pagehide', () => gravar(CH_POS, musica.currentTime));
+
+            if (!mutada) {
+                musica.play().then(atualizar).catch(() => {
+                    const iniciar = () => {
+                        if (!mutada && musica.paused) tocar();
+                        document.removeEventListener('pointerdown', iniciar);
+                    };
+                    document.addEventListener('pointerdown', iniciar);
+                });
+            }
+            atualizar();
+        })();
+    </script>
+
+
+</body>
+</html>

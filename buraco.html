@@ -136,6 +136,9 @@ input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;
   <div class="regras">Partida até 2000 pontos, 1x1 contra a CPU ou em duplas (você + um parceiro contra os outros dois; os lugares de Shifu, Louxas e Dunha são sorteados a cada partida; os jogos e o morto são do time). Sequências de 3+ cartas do mesmo naipe de A a K (A também no fim) ou lavadeiras (cartas iguais). O 2 é carta e coringa (máx. 1 coringa por jogo). Canastra (7+ cartas): real 200, simples 100, lavadeira de A 500, de coringa 1000, A a K 500, A a A 1000. Para bater é preciso uma canastra real.</div>
   <h3>Modo</h3>
   <div class="linha" id="modoBtns"><button class="opt sel" data-m="2" onclick="setModo(2)">1 x 1</button><button class="opt" data-m="4" onclick="setModo(4)">2 x 2 (duplas)</button></div>
+  <h3>Regra Vu</h3>
+  <div class="linha" id="vuBtns"><button class="opt sel" data-v="0" onclick="setVu(0)">Desligada</button><button class="opt" data-v="1" onclick="setVu(1)">Ligada</button></div>
+  <div class="regras" style="font-size:.8rem;margin-top:6px">Com a regra Vu, quando um time chega a 1000 pontos, a partir da rodada seguinte a primeira baixa dele precisa somar no mínimo 75 pontos de cartas (pode juntar vários jogos na mesma vez). Vale para você e para a CPU.</div>
   <h3>Baralho</h3>
   <div class="linha" id="jkBtns"><button class="opt sel" data-j="1" onclick="setJk(1)">Com Joker 🃏</button><button class="opt" data-j="0" onclick="setJk(0)">Sem Joker</button></div>
   <h3>Sua aposta</h3>
@@ -163,7 +166,7 @@ input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;
    <div class="area"><div class="nome" id="meusNome"></div><div id="minhaMesa"></div></div>
    <div class="log" id="log"></div>
    <div class="area"><div class="nome" id="maoNome">Sua mão</div><div class="mao" id="mao"></div>
-    <div class="linha"><button class="bt" id="bBaixar" onclick="baixar()">Baixar jogo</button><button class="bt" id="bLixo" onclick="pegarLixo()">Pegar lixo</button><button class="bt" id="bTroca" onclick="trocar()" style="display:none">🔁 Trocar carta</button><button class="bt" id="bDesc" onclick="descartar()">Descartar</button><button class="bt" onclick="organizar()">🔀 Organizar</button></div>
+    <div class="linha"><button class="bt" id="bBaixar" onclick="baixar()">Baixar jogo</button><button class="bt" id="bLixo" onclick="pegarLixo()">Pegar lixo</button><button class="bt" id="bTroca" onclick="trocar()" style="display:none">🔁 Trocar carta</button><button class="bt" id="bDesfazer" onclick="desfazer()" style="display:none">↩️ Desfazer baixa</button><button class="bt" id="bDesc" onclick="descartar()">Descartar</button><button class="bt" onclick="organizar()">🔀 Organizar</button></div>
    </div>
   </div>
   <div id="fimPainel" class="painel" style="display:none"><div id="fimTxt"></div><button class="grande" id="btnProx" onclick="proxima()">▶️ Próxima rodada</button></div>
@@ -171,7 +174,7 @@ input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;
 </div>
 <script>
 const RANK=['A','2','3','4','5','6','7','8','9','10','J','Q','K'],NAIPES=['♠','♥','♦','♣'];
-const J={saldo:1000,aposta:0,jk:1,modo:2};let M=null,G=null,timer=0;
+const J={saldo:1000,aposta:0,jk:1,modo:2,vu:0};let M=null,G=null,timer=0;
 let NOMES=['Você','Shifu','Louxas','Dunha']; // 1 = esquerda, 2 = topo (parceiro), 3 = direita
 const nome=p=>G.n===2?'CPU':NOMES[p];
 const tm=p=>p%2; // time do jogador: 1x1 => cada um é um time; 2x2 => você+Louxas (0 e 2) contra Shifu+Dunha (1 e 3)
@@ -242,6 +245,7 @@ function pontos(t){
 }
 
 function setJk(v){J.jk=v;document.querySelectorAll('#jkBtns button').forEach(b=>b.classList.toggle('sel',+b.dataset.j===v));}
+function setVu(v){J.vu=v;document.querySelectorAll('#vuBtns button').forEach(b=>b.classList.toggle('sel',+b.dataset.v===v));}
 function setModo(n){J.modo=n;document.querySelectorAll('#modoBtns button').forEach(b=>b.classList.toggle('sel',+b.dataset.m===n));}
 function chip(v){$('apCustom').value=v;}
 function comecar(){
@@ -258,13 +262,30 @@ function comecar(){
 function novaRodada(){
   const b=baralho(J.jk);
   const n=M.n||2;
-  G={n,pilha:b,lixo:[],mao:Array.from({length:n},()=>b.splice(0,11)),morto:[b.splice(0,11),b.splice(0,11)],pegou:[false,false],dono:[-1,-1],mesa:[[],[]],vez:((M.ini||0)+M.rod-1)%n,fase:'comprar',sel:[],log:[],fim:false,bateu:-1};
+  G={n,pilha:b,lixo:[],mao:Array.from({length:n},()=>b.splice(0,11)),morto:[b.splice(0,11),b.splice(0,11)],pegou:[false,false],dono:[-1,-1],mesa:[[],[]],vez:((M.ini||0)+M.rod-1)%n,fase:'comprar',sel:[],log:[],fim:false,bateu:-1,vu:[!!J.vu&&M.tot[0]>=1000,!!J.vu&&M.tot[1]>=1000],baixou:[false,false],snap:null,mine:Array.from({length:n},()=>new Set())};
   G.troca=true;G.ult=null;G.novas=[];G.mao[0].sort(ord);
   say('Rodada '+M.rod+(G.vez===0?': você começa. O lixo está vazio: compre uma carta do monte.':': '+nome(G.vez)+' começa.'));
+  if(G.vu[0])say('⚠️ Regra Vu: seu time precisa baixar pelo menos '+VU_MIN+' pontos de uma vez na primeira baixa.');
+  if(G.vu[1])say('⚠️ Regra Vu: '+(M.n===4?'a dupla adversária':nome(1))+' também só baixa com '+VU_MIN+' pontos ou mais.');
   $('fimPainel').style.display='none';render();
   if(G.vez!==0)timer=setTimeout(()=>cpuTurno(G.vez),1200);
 }
 function say(t){G.log.push(t);}
+// Regra Vu: depois que um time chega a 1000 pontos, nas rodadas seguintes a primeira baixa dele precisa somar 75+ pontos de cartas
+const VU_MIN=75;
+const somaMesa=t=>G.mesa[t].reduce((s,m)=>s+m.c.reduce((q,c)=>q+val(c),0),0);
+const vuPend=t=>!!(G.vu&&G.vu[t]&&!G.baixou[t]);
+function vuAvalia(){
+  if(!vuPend(0))return;
+  const x=somaMesa(0);
+  if(x>=VU_MIN){G.baixou[0]=true;G.snap=null;say('✅ Vu: baixa liberada ('+x+' pontos)!');}
+  else say('Vu: baixa em preparação: '+x+'/'+VU_MIN+' pontos. Complete a baixa ou desfaça.');
+}
+function desfazer(){
+  if(!G||!G.snap||G.fim||G.vez!==0||G.fase!=='jogar')return;
+  G.mao[0]=G.snap.mao;G.mesa[0]=G.snap.mesa;G.snap=null;G.sel=[];G.novas=[];
+  say('Baixa desfeita: as cartas voltaram para a sua mão.');render();
+}
 // Carta voando do monte/lixo até a mão de quem comprou
 function voar(de,para,c,n,d){
   if(!document.body||!document.createElement||!de||!para)return;
@@ -320,7 +341,10 @@ function baixar(){
   const cs=selCartas(),m=arruma(cs);
   if(!m){say('Jogo inválido: 3+ cartas seguidas do mesmo naipe (máx. 1 coringa) ou cartas iguais (lavadeira, aceita 1 coringa).');render();return;}
   if(!perm(0,G.mao[0].length-cs.length,1,real(m))){say(MSG_BAT);render();return;}
+  if(vuPend(0)&&G.mao[0].length-cs.length===0&&somaMesa(0)+cs.reduce((q,c)=>q+val(c),0)<VU_MIN){say('Vu: para esvaziar a mão você precisa de uma baixa de pelo menos '+VU_MIN+' pontos.');render();return;}
+  if(vuPend(0)&&!G.snap)G.snap={mao:G.mao[0].slice(),mesa:G.mesa[0].slice()};
   tira(0,cs);G.mesa[0].push(m);G.sel=[];G.troca=false;G.novas=[];say(m.c.length>=7?'🌟 Canastra '+nomeCan(m)+'!':'Você baixou um jogo de '+m.c.length+' cartas.');
+  vuAvalia();
   if(esvaziou(0))return;render();
 }
 function adicionar(i){
@@ -328,8 +352,11 @@ function adicionar(i){
   const cs=selCartas(),m=arruma(G.mesa[0][i].c.concat(cs));
   if(!m){say('Essas cartas não encaixam nesse jogo.');render();return;}
   if(!perm(0,G.mao[0].length-cs.length,1,real(m))){say(MSG_BAT);render();return;}
+  if(vuPend(0)&&G.mao[0].length-cs.length===0&&somaMesa(0)+cs.reduce((q,c)=>q+val(c),0)<VU_MIN){say('Vu: para esvaziar a mão você precisa de uma baixa de pelo menos '+VU_MIN+' pontos.');render();return;}
+  if(vuPend(0)&&!G.snap)G.snap={mao:G.mao[0].slice(),mesa:G.mesa[0].slice()};
   tira(0,cs);G.mesa[0][i]=m;G.sel=[];G.troca=false;G.novas=[];
   say(m.c.length>=7?'🌟 Canastra '+nomeCan(m)+'!':'Cartas adicionadas ao jogo.');
+  vuAvalia();
   if(esvaziou(0))return;render();
 }
 function descartar(){
@@ -337,8 +364,9 @@ function descartar(){
   const cs=selCartas();
   if(cs.length!==1){say('Selecione exatamente 1 carta para descartar.');render();return;}
   if(!perm(0,G.mao[0].length-1,0,false)){say(MSG_BAT);render();return;}
+  if(vuPend(0)&&G.mesa[0].length>0){say('Vu: sua baixa soma só '+somaMesa(0)+' pontos (mínimo '+VU_MIN+'). Complete a baixa ou desfaça.');render();return;}
   voar(($('mao').querySelector&&$('mao').querySelector('.sel'))||$('mao'),$('lixo'),cs[0],1);
-  tira(0,cs);G.lixo.push(cs[0]);G.sel=[];G.troca=false;G.novas=[];say('Você descartou '+fmt(cs[0])+'.');
+  tira(0,cs);G.lixo.push(cs[0]);G.mine[0].add(cs[0].id);G.sel=[];G.troca=false;G.novas=[];say('Você descartou '+fmt(cs[0])+'.');
   if(esvaziou(0))return;
   G.vez=1;G.fase='comprar';render();timer=setTimeout(()=>cpuTurno(G.vez),1100);
 }
@@ -362,6 +390,7 @@ function corridasW(cs){
 function meldStage(p,modo,dry){
   const P=CPU_P[p],nm=nome(p),log=t=>{if(!dry)say(t);};
   const vazio=()=>G.mao[p].length===0,fimOuParar=()=>dry||esvaziou(p);
+  if(modo==='nenhum')return false;
   if(modo==='tudo'){
     let r;
     while((r=corridas(G.mao[p]).find(x=>{const m=arruma(x);return m&&perm(p,G.mao[p].length-x.length,1,real(m));}))){
@@ -397,7 +426,7 @@ function simula(p){
   const m0=G.mao[p],s0=G.mesa[tm(p)],n0=s0.filter(m=>m.c.length>=7).length;
   G.mao[p]=m0.slice();G.mesa[tm(p)]=s0.slice();
   meldStage(p,'tudo',true);
-  const r={resto:G.mao[p].length,can:G.mesa[tm(p)].filter(m=>m.c.length>=7).length>n0};
+  const r={resto:G.mao[p].length,can:G.mesa[tm(p)].filter(m=>m.c.length>=7).length>n0,soma:somaMesa(tm(p))};
   G.mao[p]=m0;G.mesa[tm(p)]=s0;
   return r;
 }
@@ -406,7 +435,7 @@ function cpuTurno(p=1){
   const t=tm(p),u=1-t,P=CPU_P[p],nm=nome(p),oh=Math.min(...G.mao.filter((h,i)=>tm(i)!==t).map(h=>h.length));
   const topo=G.lixo[G.lixo.length-1];
   const perto=c=>G.mao[p].filter(o=>!isW(o)&&o.n===c.n&&Math.abs(pos(o)-pos(c))<=2).length;
-  const pega=topo&&(isW(topo)||G.mesa[tm(p)].some(m=>arruma(m.c.concat(topo)))||corridas(G.mao[p].concat(topo)).some(r=>r.includes(topo))||(P.pile&&G.lixo.length>=P.pile&&perto(topo)>=1));
+  const pega=topo&&!G.mine[p].has(topo.id)&&(isW(topo)||G.mesa[tm(p)].some(m=>arruma(m.c.concat(topo)))||corridas(G.mao[p].concat(topo)).some(r=>r.includes(topo))||(P.pile&&G.lixo.length>=P.pile&&perto(topo)>=1));
   if(pega){voar($('lixo'),$('mao'+p),topo,G.lixo.length);G.mao[p].push(...G.lixo);say(nm+' pegou o lixo ('+G.lixo.length+' cartas).');G.lixo=[];}
   else{
     if(!G.pilha.length){fim();return;}
@@ -415,7 +444,7 @@ function cpuTurno(p=1){
     if(G.troca){
       const util1=isW(c)||corridas(G.mao[p]).some(r=>r.includes(c))||corridasW(G.mao[p]).some(r=>r.includes(c))||perto(c)>=1;
       if(!util1&&G.pilha.length){
-        G.mao[p].splice(G.mao[p].indexOf(c),1);G.lixo.push(c);voar($('mao'+p),$('lixo'),c,1);say(nm+' descartou '+fmt(c)+' e comprou outra carta.');
+        G.mao[p].splice(G.mao[p].indexOf(c),1);G.lixo.push(c);G.mine[p].add(c.id);voar($('mao'+p),$('lixo'),c,1);say(nm+' descartou '+fmt(c)+' e comprou outra carta.');
         c=G.pilha.pop();G.mao[p].push(c);
       }
     }
@@ -430,13 +459,15 @@ function cpuTurno(p=1){
     const defesa=(temReal(u)&&oh<=P.dm)||G.pilha.length<=P.dp||(G.pegou[u]&&oh<=3);
     modo=(sim.can||sim.resto<=1||defesa)?'tudo':'adds';
   }
+  if(vuPend(t)&&modo==='tudo'&&simula(p).soma<VU_MIN)modo='nenhum'; // Vu: só baixa com 75+ pontos
   if(meldStage(p,modo,false))return;
+  if(vuPend(t)&&G.mesa[t].length)G.baixou[t]=true;
   const h=G.mao[p];
   if(h.length>1||temReal(t)||!G.pegou[tm(p)]){
     const nw=h.filter(c=>!isW(c)),cand=nw.length?nw:h;
     const util=c=>perto(c)+(G.mesa[tm(p)].some(m=>arruma(m.c.concat(c)))?5:0)+(P.safe&&G.mesa[u].some(m=>arruma(m.c.concat(c)))?P.safe:0);
     cand.sort((a,b)=>util(a)-util(b)||val(b)-val(a));
-    const d=cand[0];tira(p,[d]);voar($('mao'+p),$('lixo'),d,1,300);G.lixo.push(d);say(nm+' descartou '+fmt(d)+'.');
+    const d=cand[0];tira(p,[d]);voar($('mao'+p),$('lixo'),d,1,300);G.lixo.push(d);G.mine[p].add(d.id);say(nm+' descartou '+fmt(d)+'.');
     if(esvaziou(p))return;
   }
   G.vez=(p+1)%G.n;G.fase='comprar';render();
@@ -495,8 +526,8 @@ function render(){
   const cel={1:dup?'sEsq':'sTopo',2:'sTopo',3:'sDir'};
   for(let i=1;i<G.n;i++)$(cel[i]).innerHTML=(dup&&i!==2)?assentoV(i):assentoH(i);
   const mortoTxt=t=>G.dono[t]>=0?'⚰️ morto pego por '+nome(G.dono[t]):'morto guardado';
-  $('advNome').textContent=(dup?'Jogos de '+NOMES[1]+' + '+NOMES[3]:'Jogos da CPU')+' · '+mortoTxt(1);
-  $('meusNome').textContent=(dup?'Seu time (você + '+NOMES[2]+')':'Seus jogos')+' · '+mortoTxt(0)+' · toque num jogo para adicionar';
+  $('advNome').textContent=(dup?'Jogos de '+NOMES[1]+' + '+NOMES[3]:'Jogos da CPU')+' · '+mortoTxt(1)+(vuPend(1)?' · ⚠️ Vu: baixa mín. '+VU_MIN:'');
+  $('meusNome').textContent=(dup?'Seu time (você + '+NOMES[2]+')':'Seus jogos')+' · '+mortoTxt(0)+(vuPend(0)?' · ⚠️ Vu: baixa '+somaMesa(0)+'/'+VU_MIN:'')+' · toque num jogo para adicionar';
   $('cpuMesa').innerHTML=jogosH(1,false);
   $('minhaMesa').innerHTML=jogosH(0,true);
   $('lixo').innerHTML=G.lixo.length?'<div class="lixoRow" id="lixoRow">'+G.lixo.map(c=>'<div class="c h'+(verm(c)?' v':'')+(isW(c)?' w':'')+'">'+(c.j?'🃏':'<span>'+c.v+'</span><span>'+c.n+'</span>')+'</div>').join('')+'</div><div class="qtd">'+G.lixo.length+' no lixo</div>':'<div class="qtd">vazio</div>';
@@ -505,6 +536,7 @@ function render(){
   ajustaMao();
   const cp=minha&&G.fase==='comprar',jg=minha&&G.fase==='jogar';
   $('bTroca').style.display=(jg&&G.troca)?'':'none';
+  $('bDesfazer').style.display=(jg&&G.snap)?'':'none';
   $('bBaixar').disabled=!jg;$('bDesc').disabled=!jg;$('bLixo').disabled=!cp||!G.lixo.length;$('monte').disabled=!cp;
   $('log').innerHTML=G.log.slice(-3).map(t=>'<div>'+t+'</div>').join('');
 }

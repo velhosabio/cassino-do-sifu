@@ -99,7 +99,13 @@ input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;
   <div class="info-item"><div class="info-label">🎯 APOSTA</div><div class="info-value" id="apostaTxt">0</div></div>
  </div>
  <div class="painel" id="setup">
-  <div class="regras">Leve suas 4 peças azuis até o centro antes dos outros. Tire 6 para tirar uma peça da base. Cair em cima de uma peça adversária manda ela de volta para a base, exceto nas casas seguras: as marcadas com ⭐ e as casas coloridas de saída. Tirar 6, capturar ou chegar ao centro dá nova jogada. Para entrar no centro é preciso o número exato. Quem vence leva a aposta vezes o número de jogadores.</div>
+  <div class="regras">Leve suas 4 peças (da cor que você escolher) até o centro antes dos outros. Tire 6 para tirar uma peça da base. Cair em cima de uma peça adversária manda ela de volta para a base, exceto nas casas seguras: as marcadas com ⭐ e as casas coloridas de saída. Tirar 6, capturar ou chegar ao centro dá nova jogada. Para entrar no centro é preciso o número exato. Quem vence leva a aposta vezes o número de jogadores.</div>
+  <h3>Sua cor</h3>
+  <div class="linha" id="corBtns">
+   <button class="opt" data-c="0" style="border-color:#e53935" onclick="setCor('0')">🔴 Vermelho</button><button class="opt" data-c="1" style="border-color:#43a047" onclick="setCor('1')">🟢 Verde</button>
+   <button class="opt" data-c="2" style="border-color:#fdd835" onclick="setCor('2')">🟡 Amarelo</button><button class="opt sel" data-c="3" style="border-color:#1e88e5" onclick="setCor('3')">🔵 Azul</button>
+   <button class="opt" data-c="s" onclick="setCor('s')">🎲 Sorteio</button>
+  </div>
   <h3>Jogadores</h3>
   <div class="linha" id="nBtns">
    <button class="opt" data-n="2" onclick="setN(2)">2 jogadores</button>
@@ -126,7 +132,7 @@ input{width:100%;max-width:260px;margin-top:10px;padding:10px;border-radius:6px;
 <script>
 const COR=['#e53935','#43a047','#fdd835','#1e88e5'],CLARO=['#ffcdd2','#c8e6c9','#fff59d','#bbdefb'],NCOR=['Vermelho','Verde','Amarelo','Azul'];
 const FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
-const S=[0,13,26,39],SAFE=new Set([0,13,26,39,8,21,34,47]),HUM=3;
+const S=[0,13,26,39],SAFE=new Set([0,13,26,39,8,21,34,47]);let HUM=3;
 const RING=[];
 (function(){const a=(x,y)=>RING.push([x,y]);
  for(let x=1;x<=5;x++)a(x,6);for(let y=5;y>=0;y--)a(6,y);a(7,0);a(8,0);
@@ -135,11 +141,12 @@ const RING=[];
  for(let y=13;y>=9;y--)a(6,y);for(let x=5;x>=0;x--)a(x,8);a(0,7);a(0,6);})();
 const HC=[k=>[1+k,7],k=>[7,1+k],k=>[13-k,7],k=>[7,13-k]];
 const YARD=[[[1,1],[3,1],[1,3],[3,3]],[[10,1],[12,1],[10,3],[12,3]],[[10,10],[12,10],[10,12],[12,12]],[[1,10],[3,10],[1,12],[3,12]]];
-const J={saldo:1000,aposta:0,n:4};let G=null,RAPIDO=false;
+const J={saldo:1000,aposta:0,n:4,cor:'3'};let G=null,RAPIDO=false;
 const $=id=>document.getElementById(id);
 const esp=(f,ms)=>setTimeout(f,RAPIDO?0:ms);
 function lerSaldo(){try{const v=parseInt(localStorage.getItem('casinoSaldo'));if(!isNaN(v))J.saldo=v;}catch(e){}}
 function salvar(){try{localStorage.setItem('casinoSaldo',String(J.saldo));}catch(e){}}
+function setCor(c){J.cor=c;document.querySelectorAll('#corBtns button').forEach(b=>b.classList.toggle('sel',b.dataset.c===c));}
 function setN(n){J.n=n;document.querySelectorAll('#nBtns button').forEach(b=>b.classList.toggle('sel',+b.dataset.n===n));info();}
 function chip(v){$('apCustom').value=v;info();}
 function info(){
@@ -194,8 +201,9 @@ function comecar(){
   if(v>J.saldo){alert('Saldo insuficiente! Você tem '+J.saldo+' fichas.');return;}
   J.aposta=v;J.saldo-=v;salvar();$('saldo').textContent=J.saldo;$('apostaTxt').textContent=v;
   const nm=['Shifu','Louxas','Dunha'].sort(()=>Math.random()-.5);
-  const jog=J.n===4?[0,1,2,3]:[1,3];
-  const nomes={3:'Você'};let k=0;jog.forEach(c=>{if(c!==HUM)nomes[c]=nm[k++];});
+  HUM=J.cor==='s'?Math.floor(Math.random()*4):+J.cor;
+  const jog=J.n===4?[0,1,2,3]:[HUM,(HUM+2)%4].sort((a,b)=>a-b);
+  const nomes={[HUM]:'Você'};let k=0;jog.forEach(c=>{if(c!==HUM)nomes[c]=nm[k++];});
   G={jog,nomes,P:[0,1,2,3].map(()=>[-1,-1,-1,-1]),vi:Math.floor(Math.random()*jog.length),fase:'rolar',seis:0,dado:0,ops:[],fim:false};
   $('setup').style.display='none';$('jogo').style.display='block';$('fimPainel').style.display='none';
   desenha();turno(true);
@@ -233,12 +241,13 @@ function render(){
   $('bRolar').disabled=!minha;
 }
 function turno(ini){
+  if(!G||G.fim)return;
   G.fase='rolar';render();
   const c=cor();
   msg(c===HUM?'Sua vez! Role o dado.':G.nomes[c]+' vai jogar...');
   if(c!==HUM)esp(rolar,650);
 }
-function proxima(){G.vi=(G.vi+1)%G.jog.length;G.seis=0;turno();}
+function proxima(){if(!G||G.fim)return;G.vi=(G.vi+1)%G.jog.length;G.seis=0;turno();}
 function rolar(){
   if(!G||G.fim||G.fase!=='rolar')return;
   G.fase='dado';render();
@@ -247,6 +256,7 @@ function rolar(){
   let k=0;const t=setInterval(()=>{$('dado').textContent=FACES[Math.floor(Math.random()*6)];if(++k>=6){clearInterval(t);decidir(d);}},70);
 }
 function decidir(d){
+  if(!G||G.fim)return;
   G.dado=d;$('dado').textContent=FACES[d-1];
   const c=cor(),nm=G.nomes[c];
   if(d===6&&G.seis===2){msg(nm+' tirou três 6 seguidos e perdeu a vez!');esp(proxima,900);return;}
@@ -269,6 +279,7 @@ function mover(c,i,d){
   let k=0;const t=setInterval(()=>{G.P[c][i]++;posic();if(++k===d){clearInterval(t);esp(fim,120);}},100);
 }
 function acabou(c,d,res){
+  if(!G||G.fim)return;
   render();
   if(G.P[c].every(p=>p===56)){terminar(c);return;}
   if(res.cap)msg('💥 '+G.nomes[c]+' capturou '+res.cap+(res.cap>1?' peças!':' peça!'));
