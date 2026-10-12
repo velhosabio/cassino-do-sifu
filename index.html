@@ -1,69 +1,19 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cassino do Sifu</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Georgia,serif;background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow-x:hidden}
-.container{text-align:center;max-width:700px;animation:fadeIn .8s ease-out;width:100%}
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.header{margin-bottom:40px}
-h1{font-size:3.5rem;color:#d4af37;text-shadow:0 0 30px rgba(212,175,55,.8),3px 3px 6px #000;margin-bottom:15px;letter-spacing:4px;animation:glow 2s ease-in-out infinite}
-@keyframes glow{0%,100%{text-shadow:0 0 30px rgba(212,175,55,.8),3px 3px 6px #000}50%{text-shadow:0 0 50px #d4af37,3px 3px 6px #000}}
-.tagline{font-size:1.3rem;color:#b8a86b;font-style:italic;margin-bottom:30px;text-shadow:2px 2px 4px #000;letter-spacing:1px}
-.saldo-display{background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.05));border:4px solid #d4af37;border-radius:15px;padding:25px;margin-bottom:45px;box-shadow:0 0 20px rgba(212,175,55,.3);position:relative;overflow:hidden}
-.saldo-display::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(212,175,55,.1),transparent 70%);pointer-events:none}
-.saldo-label{color:#d4af37;font-weight:bold;font-size:1rem;text-transform:uppercase;letter-spacing:2px}
-.saldo-valor{font-size:2.8rem;color:#00ff00;font-weight:bold;text-shadow:0 0 15px rgba(0,255,0,.8);margin-top:12px}
-.jogos{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;margin-bottom:35px}
-.jogo-card{background:linear-gradient(135deg,#0d5f2d,#1a3a2e);border:5px solid #d4af37;border-radius:20px;padding:40px 25px;cursor:pointer;user-select:none;transition:all .4s cubic-bezier(.34,1.56,.64,1);text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 25px rgba(212,175,55,.25),inset 0 0 15px rgba(0,0,0,.3);position:relative;overflow:hidden;color:inherit}
-.jogo-card::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(212,175,55,.1),transparent 70%);pointer-events:none}
-.jogo-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 15px 40px rgba(212,175,55,.5),inset 0 0 15px rgba(0,0,0,.3);border-color:#ffd700}
-.jogo-icon{font-size:3.5rem;margin-bottom:18px;animation:bounce 2s ease-in-out infinite}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.jogo-nome{color:#d4af37;font-size:1.7rem;font-weight:bold;margin-bottom:12px;text-transform:uppercase;letter-spacing:2px}
-.jogo-desc{color:#ccc;font-size:.95rem;line-height:1.6;position:relative;z-index:1}
-.botoes{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
-.reset-btn{background:linear-gradient(135deg,#ff6b6b,#ee5a52);color:white;border:none;padding:12px 30px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s ease;box-shadow:0 4px 12px rgba(255,107,107,.3);font-size:1rem}
-.reset-btn:hover{background:linear-gradient(135deg,#ff5252,#e53e3e);transform:scale(1.05)}
-.rodape{color:#b8a86b;font-size:.9rem;text-shadow:1px 1px 2px #000;margin-top:20px}
-.musica-btn{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:50%;border:3px solid #d4af37;background:rgba(15,52,96,.9);color:#d4af37;font-size:1.5rem;cursor:pointer;z-index:900;box-shadow:0 0 15px rgba(212,175,55,.5)}
-.musica-btn.tocando{animation:glow-btn 1.5s ease-in-out infinite}
-@keyframes glow-btn{0%,100%{box-shadow:0 0 10px rgba(212,175,55,.4)}50%{box-shadow:0 0 24px #d4af37}}
-@media(max-width:700px){.container{max-width:100%}h1{font-size:2.2rem;letter-spacing:2px}.saldo-valor{font-size:2rem}.jogos{grid-template-columns:1fr;gap:20px}.jogo-icon{font-size:2.8rem}.jogo-nome{font-size:1.4rem}.jogo-card{padding:30px 20px;border-radius:15px}}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="header"><h1>🎴 CASSINO DO SIFU 🎴</h1><p class="tagline">Onde a sorte encontra a disciplina</p></div>
-<div class="saldo-display"><div class="saldo-label">💰 SEU SALDO</div><div class="saldo-valor" id="saldoTotal">1000</div><div class="saldo-label">fichas</div></div>
-<div class="jogos">
-<a href="blackjack.html" class="jogo-card"><div class="jogo-icon">♠️</div><div class="jogo-nome">Blackjack</div><div class="jogo-desc">Jogue contra o dealer. Chegue aos 21 sem estourar!</div></a>
-<a href="jackpot.html" class="jogo-card"><div class="jogo-icon">🎰</div><div class="jogo-nome">Jackpot</div><div class="jogo-desc">Caça-níquel. Uma chance minúscula de ganhar muito!</div></a>
-<a href="truco.html" class="jogo-card"><div class="jogo-icon">🃏</div><div class="jogo-nome">Truco</div><div class="jogo-desc">O jogo de cartas mais clássico do Brasil! 1 vs CPU</div></a>
-<a href="mico.html" class="jogo-card"><div class="jogo-icon">🐒</div><div class="jogo-nome">Mico 🐒</div><div class="jogo-desc">Forme pares e fuja do Mico! Quem ficar com a carta sem par perde.</div></a>
-<a href="buraco.html" class="jogo-card"><div class="jogo-icon">🕳️</div><div class="jogo-nome">Buraco</div><div class="jogo-desc">Forme sequências, faça buracos e bata primeiro! 1 vs CPU</div></a>
-<a href="velha.html" class="jogo-card"><div class="jogo-icon">⭕</div><div class="jogo-nome">Jogo da Velha</div><div class="jogo-desc">Três em linha! Você contra Shifu, Louxas ou Dunha.</div></a>
-<a href="ludo.html" class="jogo-card"><div class="jogo-icon">🎲</div><div class="jogo-nome">Ludo</div><div class="jogo-desc">Role o dado e leve suas peças ao centro! 2 ou 4 jogadores</div></a>
-<a href="gamao.html" class="jogo-card"><div class="jogo-icon">🎲</div><div class="jogo-nome">Gamão</div><div class="jogo-desc">Dois dados, 15 peças e muita estratégia! 1 vs CPU</div></a>
-<a href="https://velhosabio.github.io/tetris-3d/" class="jogo-card"><div class="jogo-icon">🧊</div><div class="jogo-nome">Tetris 3D</div><div class="jogo-desc">Encaixe peças em três dimensões e complete camadas inteiras!</div></a>
-<a href="https://velhosabio.github.io/shifu-lego/" class="jogo-card"><div class="jogo-icon">🧱</div><div class="jogo-nome">Shifu LEGO</div><div class="jogo-desc">Entre no universo LEGO do Shifu!</div></a>
-<a href="https://mtfk-streets-beta.velhosabio.chatgpt.site/" class="jogo-card"><div class="jogo-icon">🥷</div><div class="jogo-nome">Streets of Shifu</div><div class="jogo-desc">Ação e pancadaria no arcade do Shifu!</div></a>
-</div>
-<div class="botoes"><button class="reset-btn" onclick="resetarJogo()">🔄 Recomeçar com 1000 fichas</button></div>
-<p class="rodape">Jogue com responsabilidade • Cassino do Sifu © 2026</p>
-</div>
-<script>
-function carregarSaldo(){let saldo=localStorage.getItem('casinoSaldo');if(!saldo){saldo=1000;localStorage.setItem('casinoSaldo',saldo)}document.getElementById('saldoTotal').textContent=saldo}
-function resetarJogo(){if(confirm('Resetar saldo para 1000 fichas?')){localStorage.setItem('casinoSaldo',1000);location.reload()}}
-carregarSaldo();
-</script>
-<audio id="musica" loop preload="auto" src="musica.m4a"></audio>
-<button class="musica-btn" id="musicaBtn" onclick="alternarMusica()" aria-label="Música">🔇</button>
-<script>
-(function(){const musica=document.getElementById('musica');const btn=document.getElementById('musicaBtn');const CH_MUDO='casinoMusicaMutada',CH_POS='casinoMusicaPos';const ler=k=>{try{return localStorage.getItem(k)}catch(e){return null}};const gravar=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};let mutada=ler(CH_MUDO)==='1';function atualizar(){const tocando=!musica.paused;btn.textContent=tocando?'🔊':'🔇';btn.classList.toggle('tocando',tocando)}function tocar(){return musica.play().then(atualizar).catch(atualizar)}window.alternarMusica=function(){if(musica.paused){mutada=false;gravar(CH_MUDO,'0');tocar()}else{mutada=true;gravar(CH_MUDO,'1');musica.pause();atualizar()}};musica.volume=.6;const pos=parseFloat(ler(CH_POS));if(pos>0)musica.addEventListener('loadedmetadata',()=>{try{musica.currentTime=pos}catch(e){}},{once:true});let ult=0;musica.addEventListener('timeupdate',()=>{const t=Date.now();if(t-ult>1000){ult=t;gravar(CH_POS,musica.currentTime)}});window.addEventListener('pagehide',()=>gravar(CH_POS,musica.currentTime));if(!mutada){musica.play().then(atualizar).catch(()=>{const iniciar=()=>{if(!mutada&&musica.paused)tocar();document.removeEventListener('pointerdown',iniciar)};document.addEventListener('pointerdown',iniciar)})}atualizar()})();
-</script>
-</body>
-</html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MTFK • Casino do Shifu</title><style>
+:root{--gold:#f9c761;--bg:#090c16}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff1d0;font-family:Georgia,serif}.wrap{max-width:1550px;margin:auto;min-height:100vh;background:radial-gradient(ellipse at 50% 5%,#6c3324 0%,#180d17 52%,#090b15 90%);box-shadow:0 0 100px #000}.hero{height:min(56vw,670px);min-height:270px;position:relative;background:linear-gradient(0deg,#130a13 0%,transparent 20%),url('james-abu-lobby.png') center top/cover no-repeat}.hero:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.15),transparent 30%,transparent 70%,rgba(0,0,0,.15))}.topbar{position:absolute;top:12px;right:14px;z-index:2;display:flex;gap:8px}.badge,.iconbtn{border:2px solid var(--gold);background:#100d18eb;color:var(--gold);border-radius:10px;padding:10px 13px;font-weight:bold;box-shadow:0 3px 15px #0009}.iconbtn{cursor:pointer;font-size:1rem}.hero-caption{position:absolute;bottom:9px;left:12px;right:12px;text-align:center;z-index:2;text-shadow:2px 3px 4px #000;background:#110d18b8;padding:8px;border:1px solid #9e692b;border-radius:8px;max-width:650px;margin:auto}.hero-caption strong{color:var(--gold)}h1{text-align:center;color:var(--gold);margin:0;padding:22px 10px 4px;font-size:clamp(1.35rem,3vw,2.4rem);letter-spacing:2px;text-shadow:2px 3px #000}.subtitle{text-align:center;color:#d1b47c;margin:5px 15px 20px}.games{padding:8px 22px 26px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px}.game{min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:10px 5px;border:2px solid #b78838;background:linear-gradient(155deg,#202c34,#100f1b 72%);box-shadow:inset 0 0 16px #000,0 4px 7px #0009;color:#f8e1a5;text-decoration:none;text-align:center;border-radius:9px;font:700 .9rem Georgia,serif;transition:transform .2s,border-color .2s}.game:hover,.game:focus-visible{transform:translateY(-4px);border-color:#ffe399;background:#40321d}.ico{font-size:2.4rem;filter:drop-shadow(2px 3px 2px #000)}.bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:10px 20px 25px}.bottom button{background:#1d1821;border:2px solid #b78838;border-radius:8px;padding:11px;color:var(--gold);cursor:pointer}.footer{text-align:center;padding:15px;color:#ad8d53;font-size:.8rem}audio{display:none}@media(max-width:950px){.games{grid-template-columns:repeat(4,1fr)}}@media(max-width:550px){.hero{height:56vw;min-height:215px;background-position:center top}.hero-caption{font-size:.75rem}.games{grid-template-columns:repeat(3,1fr);gap:7px;padding:8px}.game{min-height:90px;font-size:.74rem}.ico{font-size:1.8rem}.badge,.iconbtn{padding:6px;font-size:.76rem}.topbar{top:5px;right:5px}}
+</style></head><body><main class="wrap"><section class="hero" aria-label="James e Abu recebem os visitantes no casino"><div class="topbar"><div class="badge">🐒 <span id="saldo">1000</span> MACACOS</div><button class="iconbtn" id="audioBtn" aria-label="Alternar música">🔇</button></div><div class="hero-caption"><strong>🎩 JAMES:</strong> Good evening, sir. Your fortune awaits. <span aria-hidden="true">🐒🍌</span></div></section><h1>🎰 ESCOLHA SEU JOGO 🎰</h1><p class="subtitle">MTFK CASINO DO SHIFU • PLAY · RELAX · BELONG</p><nav class="games" aria-label="Jogos disponíveis"><a class="game" href="blackjack.html"><span class="ico">♠️</span><span>Blackjack</span></a>
+<a class="game" href="jackpot.html"><span class="ico">🎰</span><span>Jackpot</span></a>
+<a class="game" href="truco.html"><span class="ico">🃏</span><span>Truco</span></a>
+<a class="game" href="mico.html"><span class="ico">🐒</span><span>Mico</span></a>
+<a class="game" href="buraco.html"><span class="ico">🕳️</span><span>Buraco</span></a>
+<a class="game" href="velha.html"><span class="ico">⭕</span><span>Jogo da Velha</span></a>
+<a class="game" href="ludo.html"><span class="ico">🎲</span><span>Ludo</span></a>
+<a class="game" href="gamao.html"><span class="ico">🎲</span><span>Gamão</span></a>
+<a class="game" href="domino.html"><span class="ico">🁢</span><span>Dominó</span></a>
+<a class="game" href="damas.html"><span class="ico">⚫</span><span>Damas</span></a>
+<a class="game" href="xadrez-chines.html"><span class="ico">🐉</span><span>Xadrez Chinês</span></a>
+<a class="game" href="https://velhosabio.github.io/tetris-3d/"><span class="ico">🧊</span><span>Tetris 3D</span></a>
+<a class="game" href="https://velhosabio.github.io/shifu-lego/"><span class="ico">🧱</span><span>Shifu LEGO</span></a>
+<a class="game" href="https://mtfk-streets-beta.velhosabio.chatgpt.site/"><span class="ico">🥷</span><span>Streets of Shifu</span></a></nav><div class="bottom"><button id="reset">🔄 Reiniciar saldo fictício</button><button id="james">🎩 Ouvir James</button></div><p class="footer">MTFK COMPANY © 2026 • GOOD GAMES BETTER PEOPLE • Sem prêmios em dinheiro</p></main><audio id="musica" loop preload="none" src="musica.m4a"></audio><script>
+const $=s=>document.querySelector(s);function saldo(){let s=localStorage.getItem('casinoSaldo');if(s===null){s='1000';localStorage.setItem('casinoSaldo',s)}$('#saldo').textContent=s}saldo();window.addEventListener('pageshow',saldo);$('#reset').onclick=()=>{if(confirm('Reiniciar o saldo fictício para 1000?')){localStorage.setItem('casinoSaldo','1000');saldo()}};const a=$('#musica'),b=$('#audioBtn');let muted=localStorage.getItem('casinoMusicaMutada')==='1';const pos=Number(localStorage.getItem('casinoMusicaPos')||0);a.addEventListener('loadedmetadata',()=>{if(pos>0&&pos<a.duration)a.currentTime=pos},{once:true});a.addEventListener('timeupdate',()=>localStorage.setItem('casinoMusicaPos',a.currentTime));function paint(){b.textContent=a.paused?'🔇':'🔊'}b.onclick=async()=>{if(a.paused){try{await a.play();muted=false}catch(e){}}else{a.pause();muted=true}localStorage.setItem('casinoMusicaMutada',muted?'1':'0');paint()};$('#james').onclick=()=>{alert('🎩 James: Splendid, sir. Your monkeys have been expecting you.
+🐒 Abu: 🍌')};
+</script></body></html>
